@@ -1,0 +1,30 @@
+:root {
+  --color-brand-900: #094A2B;
+  --color-brand-900-rgb: 9 74 43;
+  --color-brand-800: #0A4121;
+  --color-brand-800-rgb: 10 65 33;
+  --color-brand-700: #155128;
+  --color-brand-700-rgb: 21 81 40;
+  --color-brand-600: #216732;
+  --color-brand-600-rgb: 33 103 50;
+  --color-brand-500: #2F7034;
+  --color-brand-500-rgb: 47 112 52;
+  --color-brand-400: #348037;
+  --color-brand-400-rgb: 52 128 55;
+  --color-brand-300: #5C8D3D;
+  --color-brand-300-rgb: 92 141 61;
+  --color-accent-500: #FCEA78;
+  --color-accent-500-rgb: 252 234 120;
+  --color-accent-600: #E2D26C;
+  --color-accent-600-rgb: 226 210 108;
+  --color-bg: #F1F3E8;
+  --color-bg-rgb: 241 243 232;
+  --color-surface: #FFFFFF;
+  --color-surface-rgb: 255 255 255;
+  --color-muted: #CFDED2;
+  --color-muted-rgb: 207 222 210;
+  --color-text: #0A4121;
+  --color-text-rgb: 10 65 33;
+  --color-text-invert: #FFFFFF;
+  --color-text-invert-rgb: 255 255 255;
+}

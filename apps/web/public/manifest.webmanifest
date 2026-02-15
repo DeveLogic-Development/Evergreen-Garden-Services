@@ -1,0 +1,22 @@
+{
+  "name": "Evergreen Garden Services",
+  "short_name": "Evergreen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1F3E8",
+  "theme_color": "#094A2B",
+  "icons": [
+    {
+      "src": "/images/logoEGS.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logoEGS.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

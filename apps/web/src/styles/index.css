@@ -1,0 +1,72 @@
+@import './theme.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply text-text antialiased;
+    margin: 0;
+    font-family: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgb(var(--color-brand-300-rgb) / 0.24), transparent 65%),
+      radial-gradient(900px 420px at 100% 10%, rgb(var(--color-accent-500-rgb) / 0.28), transparent 70%),
+      radial-gradient(700px 320px at 10% 100%, rgb(var(--color-brand-400-rgb) / 0.16), transparent 68%),
+      rgb(var(--color-bg-rgb));
+  }
+
+  * {
+    @apply border-muted;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgb(var(--color-surface-rgb) / 0.60);
+    border: 1px solid rgb(var(--color-surface-rgb) / 0.55);
+    box-shadow: 0 18px 36px rgb(var(--color-brand-900-rgb) / 0.12);
+    backdrop-filter: blur(18px);
+  }
+
+  .glass-panel {
+    background: rgb(var(--color-surface-rgb) / 0.40);
+    border: 1px solid rgb(var(--color-surface-rgb) / 0.48);
+    box-shadow: 0 14px 28px rgb(var(--color-brand-900-rgb) / 0.12);
+    backdrop-filter: blur(16px);
+  }
+}
+
+@layer utilities {
+  .tap-target {
+    min-height: 44px;
+  }
+
+  .bottom-nav-clearance {
+    bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .safe-top {
+    padding-top: calc(0.5rem + env(safe-area-inset-top));
+  }
+
+  .bg-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgb(var(--color-surface-rgb) / 0.55) 25%,
+      rgb(var(--color-surface-rgb) / 0.85) 50%,
+      rgb(var(--color-surface-rgb) / 0.55) 75%
+    );
+    background-size: 200% 100%;
+  }
+}
