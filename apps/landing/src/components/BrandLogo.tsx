@@ -4,6 +4,7 @@ type BrandLogoProps = {
   className?: string;
   showText?: boolean;
   size?: 'sm' | 'lg';
+  compactOnMobile?: boolean;
 };
 
 const configuredLogoUrl = import.meta.env.VITE_LOGO_URL?.trim();
@@ -32,7 +33,7 @@ function PlaceholderMark({ size }: { size: 'sm' | 'lg' }): React.JSX.Element {
   );
 }
 
-export function BrandLogo({ className = '', showText = true, size = 'sm' }: BrandLogoProps): React.JSX.Element {
+export function BrandLogo({ className = '', showText = true, size = 'sm', compactOnMobile = false }: BrandLogoProps): React.JSX.Element {
   const [imageError, setImageError] = useState(false);
   const markClass = size === 'lg' ? 'h-14 w-14 rounded-2xl' : 'h-10 w-10 rounded-xl';
   const logoUrl = configuredLogoUrl || defaultLogoUrl;
@@ -53,7 +54,7 @@ export function BrandLogo({ className = '', showText = true, size = 'sm' }: Bran
         )
       }
       {showText ? (
-        <div className="leading-tight">
+        <div className={['leading-tight', compactOnMobile ? 'max-[380px]:hidden' : ''].join(' ')}>
           <p className="text-sm font-semibold text-brand-900">Evergreen</p>
           <p className="text-xs text-brand-700">Garden Services</p>
         </div>

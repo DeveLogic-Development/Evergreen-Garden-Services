@@ -48,7 +48,13 @@ export function About({ reducedMotion }: AboutProps): React.JSX.Element {
       <Container>
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div data-reveal className="relative">
-            <img src="/template/about.jpg" alt="Garden detail" className="h-[360px] w-full rounded-3xl object-cover sm:h-[430px]" loading="lazy" />
+            <img
+              src="/template/about.jpg"
+              alt="Garden detail"
+              className="h-[360px] w-full rounded-3xl object-cover sm:h-[430px]"
+              loading="lazy"
+              sizes="(max-width: 1024px) 100vw, 46vw"
+            />
             <div
               ref={badgeRef}
               className="absolute -bottom-5 left-5 max-w-[240px] rounded-2xl border border-surface/70 bg-surface/74 p-4 shadow-[0_12px_26px_rgb(var(--color-brand-900-rgb)/0.14)] backdrop-blur-md"

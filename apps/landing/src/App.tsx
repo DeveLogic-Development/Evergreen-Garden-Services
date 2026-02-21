@@ -83,7 +83,7 @@ export function App(): React.JSX.Element {
   }, [reducedMotion]);
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-bg text-text">
+    <div className="relative min-h-screen overflow-x-hidden bg-bg text-text">
       <Header activeSection={activeSection} />
       <main>
         <Hero reducedMotion={reducedMotion} />

@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Container } from '@/components/ui/Container';
 import { projects, type ProjectCategory, type ProjectItem } from '@/data/content';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 const filters: ProjectCategory[] = ['All', 'Landscaping', 'Maintenance', 'Plant Care'];
 
 export function Projects(): React.JSX.Element {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All');
   const [selected, setSelected] = useState<ProjectItem | null>(null);
+  useLockBodyScroll(Boolean(selected));
 
   const visibleProjects = useMemo(() => {
     if (activeFilter === 'All') {
@@ -54,10 +56,16 @@ export function Projects(): React.JSX.Element {
                 onClick={() => setSelected(item)}
                 className="group relative overflow-hidden rounded-2xl border border-surface/65"
               >
-                <img src={item.image} alt={item.title} className="h-56 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-56 w-full object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgb(var(--color-brand-900-rgb)/0.82))]" />
                 <div className="absolute inset-x-0 bottom-0 p-4 text-left text-text-invert">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-500">{item.category}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-500">{item.category}</p>
                   <p className="mt-1 text-base font-semibold">{item.title}</p>
                 </div>
                 <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-surface/70 bg-surface/14 text-text-invert">
@@ -73,12 +81,18 @@ export function Projects(): React.JSX.Element {
       </section>
 
       {selected ? (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-brand-900/76 p-4" onClick={() => setSelected(null)}>
+        <div className="fixed inset-0 z-[70] overflow-y-auto overscroll-contain bg-brand-900/76 p-4 pb-safe-bottom pt-safe-top" onClick={() => setSelected(null)}>
           <div
-            className="w-full max-w-3xl overflow-hidden rounded-2xl border border-surface/70 bg-surface"
+            className="mx-auto my-4 flex w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-surface/70 bg-surface"
             onClick={(event) => event.stopPropagation()}
           >
-            <img src={selected.image} alt={selected.title} className="h-[52vh] w-full object-cover" loading="lazy" />
+            <img
+              src={selected.image}
+              alt={selected.title}
+              className="h-[38vh] min-h-48 w-full object-cover sm:h-[52vh]"
+              loading="lazy"
+              sizes="100vw"
+            />
             <div className="flex items-center justify-between p-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">{selected.category}</p>

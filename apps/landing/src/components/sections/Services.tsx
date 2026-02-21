@@ -18,7 +18,13 @@ export function Services(): React.JSX.Element {
               className="group relative overflow-hidden rounded-2xl border border-surface/65 bg-surface/60 shadow-[0_14px_30px_rgb(var(--color-brand-900-rgb)/0.12)]"
             >
               <div className="relative h-52 overflow-hidden">
-                <img src={service.image} alt={service.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy" />
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                  loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgb(var(--color-brand-900-rgb)/0.72))] opacity-90" />
               </div>
 

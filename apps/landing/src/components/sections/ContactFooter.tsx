@@ -4,7 +4,7 @@ import { navItems } from '@/data/content';
 
 export function ContactFooter(): React.JSX.Element {
   return (
-    <section id="contact" className="pb-24 pt-16 sm:pb-16 sm:pt-20">
+    <section id="contact" className="pb-24 pb-safe-bottom pt-16 sm:pb-16 sm:pt-20">
       <Container>
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <article data-reveal className="rounded-3xl border border-surface/70 bg-surface/72 p-6 shadow-[0_14px_32px_rgb(var(--color-brand-900-rgb)/0.12)] backdrop-blur-md">
@@ -18,7 +18,7 @@ export function ContactFooter(): React.JSX.Element {
                 <input
                   type="text"
                   placeholder="Your name"
-                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-sm text-brand-900 outline-none transition focus:border-brand-500"
+                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                 />
               </label>
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
@@ -26,7 +26,7 @@ export function ContactFooter(): React.JSX.Element {
                 <input
                   type="text"
                   placeholder="Garden area"
-                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-sm text-brand-900 outline-none transition focus:border-brand-500"
+                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                 />
               </label>
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
@@ -34,7 +34,7 @@ export function ContactFooter(): React.JSX.Element {
                 <input
                   type="text"
                   placeholder="Service needed"
-                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-sm text-brand-900 outline-none transition focus:border-brand-500"
+                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                 />
               </label>
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
@@ -42,7 +42,7 @@ export function ContactFooter(): React.JSX.Element {
                 <textarea
                   rows={4}
                   placeholder="Tell us about your request"
-                  className="rounded-xl border border-surface/75 bg-surface px-3 py-2 text-sm text-brand-900 outline-none transition focus:border-brand-500"
+                  className="rounded-xl border border-surface/75 bg-surface px-3 py-2 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                 />
               </label>
               <button

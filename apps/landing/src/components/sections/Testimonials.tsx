@@ -33,7 +33,13 @@ export function Testimonials({ reducedMotion }: TestimonialsProps): React.JSX.El
               <SwiperSlide key={item.id}>
                 <article className="h-full rounded-2xl border border-surface/65 bg-surface/64 p-5 shadow-[0_12px_28px_rgb(var(--color-brand-900-rgb)/0.1)] backdrop-blur-md">
                   <div className="flex items-center gap-3">
-                    <img src={item.image} alt="Client portrait placeholder" className="h-12 w-12 rounded-full object-cover" loading="lazy" />
+                    <img
+                      src={item.image}
+                      alt="Client portrait placeholder"
+                      className="h-12 w-12 rounded-full object-cover"
+                      loading="lazy"
+                      sizes="48px"
+                    />
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">{item.role}</p>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-brand-800">“{item.quote}”</p>

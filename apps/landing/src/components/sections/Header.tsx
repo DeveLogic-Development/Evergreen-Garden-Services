@@ -3,6 +3,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { Container } from '@/components/ui/Container';
 import { appLinks } from '@/lib/app-links';
 import { navItems } from '@/data/content';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 type HeaderProps = {
   activeSection: string;
@@ -11,6 +12,7 @@ type HeaderProps = {
 export function Header({ activeSection }: HeaderProps): React.JSX.Element {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  useLockBodyScroll(menuOpen);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -33,7 +35,7 @@ export function Header({ activeSection }: HeaderProps): React.JSX.Element {
   }, [menuOpen]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 pt-safe-top">
+    <header className="fixed inset-x-0 top-0 z-50 px-safe pt-safe-top">
       <Container>
         <div
           className={[
@@ -44,7 +46,7 @@ export function Header({ activeSection }: HeaderProps): React.JSX.Element {
           ].join(' ')}
         >
           <a href="#home" className="inline-flex items-center">
-            <BrandLogo />
+            <BrandLogo compactOnMobile />
           </a>
 
           <nav className="hidden items-center gap-5 lg:flex">
@@ -97,7 +99,7 @@ export function Header({ activeSection }: HeaderProps): React.JSX.Element {
 
       <aside
         className={[
-          'fixed right-0 top-0 z-50 h-full w-[82vw] max-w-sm border-l border-surface/70 bg-bg p-5 shadow-[0_18px_36px_rgb(var(--color-brand-900-rgb)/0.2)] transition lg:hidden',
+          'fixed right-0 top-0 z-50 h-[100dvh] min-h-[100svh] w-[82vw] max-w-sm overflow-y-auto border-l border-surface/70 bg-bg p-5 pb-safe-bottom pt-safe-top shadow-[0_18px_36px_rgb(var(--color-brand-900-rgb)/0.2)] transition lg:hidden',
           menuOpen ? 'translate-x-0' : 'translate-x-full',
         ].join(' ')}
       >

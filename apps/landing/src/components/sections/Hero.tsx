@@ -55,7 +55,7 @@ export function Hero({ reducedMotion }: HeroProps): React.JSX.Element {
   }, [reducedMotion]);
 
   return (
-    <section id="home" ref={rootRef} className="relative flex min-h-[92vh] items-end overflow-hidden pb-16 pt-32 sm:items-center">
+    <section id="home" ref={rootRef} className="relative flex min-h-[92vh] min-h-[92svh] min-h-[92dvh] items-end overflow-hidden pb-16 pt-32 sm:items-center">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"
@@ -67,7 +67,14 @@ export function Hero({ reducedMotion }: HeroProps): React.JSX.Element {
         {heroSlides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div className="absolute inset-0">
-              <img src={slide.image} alt={slide.subtitle} className="h-full w-full object-cover" loading="eager" fetchPriority="high" />
+              <img
+                src={slide.image}
+                alt={slide.subtitle}
+                className="h-full w-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                sizes="100vw"
+              />
               <div className="absolute inset-0 bg-[linear-gradient(125deg,rgb(var(--color-brand-900-rgb)/0.82),rgb(var(--color-brand-700-rgb)/0.52),rgb(var(--color-brand-500-rgb)/0.24))]" />
             </div>
           </SwiperSlide>
