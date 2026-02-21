@@ -5,6 +5,8 @@
   "packageManager": "pnpm@10.2.1",
   "scripts": {
     "dev": "pnpm --filter @evergreen/web dev",
+    "dev:landing": "pnpm --filter @evergreen/landing dev",
+    "build:landing": "pnpm --filter @evergreen/landing build",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",

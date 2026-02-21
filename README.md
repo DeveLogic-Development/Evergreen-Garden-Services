@@ -13,12 +13,14 @@ Mobile-first booking + admin management app for a single South African gardening
 ## Monorepo Layout
 
 - `apps/web`: customer + admin PWA web app
+- `apps/landing`: immersive one-page landing site
 - `packages/shared`: shared types and Zod schemas
+- `packages/theme`: shared CSS tokens and Tailwind preset
 - `supabase/schema.sql`: SQL bootstrap (tables, RLS, functions, storage policies)
 
 ## Brand Theme
 
-Theme tokens are defined in `apps/web/src/styles/theme.css` and mapped in `apps/web/tailwind.config.ts`.
+Theme tokens are defined in `packages/theme/theme.css` and mapped via `packages/theme/tailwind-preset.js`.
 Use only token-based Tailwind classes (`bg-brand-700`, `text-text`, `bg-bg`, etc.).
 
 ## Design System (Glassmorphism)
@@ -84,13 +86,66 @@ See `supabase/checklist.md` for the complete finalization checklist.
 pnpm dev
 ```
 
+Landing env (optional, only for `apps/landing`):
+
+```bash
+cp apps/landing/.env.example apps/landing/.env.local
+```
+
+Set:
+
+- `VITE_SIGN_IN_URL` (Sign in target URL)
+- `VITE_LOGO_URL` (optional: hosted final logo URL)
+
 ## Scripts
 
 - `pnpm dev` - run web app
+- `pnpm dev:landing` - run landing app
+- `pnpm build:landing` - build landing app
 - `pnpm build` - build all packages
 - `pnpm typecheck` - type-check all packages
 - `pnpm lint` - lint all packages
 - `pnpm format` - run Prettier
+
+## Landing App
+
+### Run locally
+
+```bash
+pnpm install
+pnpm --filter @evergreen/landing dev
+```
+
+Landing runs at Vite default (typically `http://localhost:5173`).
+
+### Deploy landing independently on Vercel (monorepo)
+
+1. Create a new Vercel project from this repository.
+2. In Project Settings:
+- Framework Preset: `Vite`
+- Root Directory: `apps/landing`
+- Install Command: `pnpm install`
+- Build Command: `pnpm --filter @evergreen/landing build`
+- Output Directory: `dist`
+3. Add environment variables:
+- `VITE_APP_BASE_URL` = `https://evergreen-garden-services-web.vercel.app`
+- `VITE_SIGN_IN_URL` = optional (absolute URL or `/login`, defaults to `${VITE_APP_BASE_URL}/login`)
+- `VITE_LOGO_URL` = optional hosted logo URL
+4. Deploy.
+
+### Logo replacement
+
+Single replacement points:
+
+- `apps/landing/src/components/BrandLogo.tsx` (`DEFAULT_LOGO_URL` source)
+- `apps/landing/src/assets/logo-placeholder.svg` (local fallback asset)
+
+Set `VITE_LOGO_URL` for one-line logo swap without changing component markup.
+
+### Auth link adjustment
+
+Landing auth links are in `apps/landing/src/lib/app-links.ts`.
+Current routes match the web app: `/signup` and `/login`.
 
 ## Admin Role Setup
 

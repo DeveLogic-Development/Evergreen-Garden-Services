@@ -1,0 +1,93 @@
+@import '@evergreen/theme/theme.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: clip;
+    font-family: 'Avenir Next', 'Trebuchet MS', 'Segoe UI', sans-serif;
+    text-rendering: optimizeLegibility;
+    @apply bg-bg text-text antialiased;
+    background:
+      radial-gradient(1200px 560px at 20% -12%, rgb(var(--color-brand-300-rgb) / 0.24), transparent 68%),
+      radial-gradient(860px 420px at 98% 10%, rgb(var(--color-accent-500-rgb) / 0.24), transparent 68%),
+      radial-gradient(740px 340px at 4% 100%, rgb(var(--color-brand-400-rgb) / 0.2), transparent 66%),
+      rgb(var(--color-bg-rgb));
+  }
+
+  * {
+    @apply border-muted;
+  }
+}
+
+@layer components {
+  .hero-noise {
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgb(var(--color-surface-rgb) / 0.02) 0px,
+        rgb(var(--color-surface-rgb) / 0.02) 1px,
+        transparent 1px,
+        transparent 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgb(var(--color-surface-rgb) / 0.018) 0px,
+        rgb(var(--color-surface-rgb) / 0.018) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    mix-blend-mode: soft-light;
+  }
+
+  .cta-pattern {
+    background:
+      radial-gradient(circle at 12% 26%, rgb(var(--color-accent-500-rgb) / 0.2), transparent 38%),
+      radial-gradient(circle at 86% 74%, rgb(var(--color-brand-300-rgb) / 0.2), transparent 34%),
+      linear-gradient(132deg, rgb(var(--color-brand-900-rgb) / 0.9), rgb(var(--color-brand-700-rgb) / 0.82));
+  }
+
+  .hero-swiper .swiper-pagination,
+  .testimonial-swiper .swiper-pagination {
+    position: static;
+    margin-top: 0.9rem;
+  }
+
+  .hero-swiper .swiper-pagination-bullet,
+  .testimonial-swiper .swiper-pagination-bullet {
+    width: 0.52rem;
+    height: 0.52rem;
+    background: rgb(var(--color-surface-rgb) / 0.6);
+    opacity: 1;
+  }
+
+  .hero-swiper .swiper-pagination-bullet-active,
+  .testimonial-swiper .swiper-pagination-bullet-active {
+    width: 1.45rem;
+    border-radius: 9999px;
+    background: rgb(var(--color-accent-500-rgb) / 0.98);
+  }
+}
+
+@layer utilities {
+  .tap-target {
+    min-height: 44px;
+  }
+
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}

@@ -18,7 +18,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const requestUrl = new URL(event.request.url);
+  const isSupportedScheme = requestUrl.protocol === 'http:' || requestUrl.protocol === 'https:';
+
   if (event.request.method !== 'GET') {
+    return;
+  }
+  if (!isSupportedScheme) {
     return;
   }
 
@@ -29,8 +35,11 @@ self.addEventListener('fetch', (event) => {
       }
       return fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          // Cache only successful same-origin requests to avoid extension/protocol errors.
+          if (response.ok && requestUrl.origin === self.location.origin) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
           return response;
         })
         .catch(() => caches.match('/'));

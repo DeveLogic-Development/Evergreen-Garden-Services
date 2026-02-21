@@ -1,4 +1,4 @@
-@import './theme.css';
+@import '@evergreen/theme/theme.css';
 
 @tailwind base;
 @tailwind components;
