@@ -103,7 +103,20 @@ export function Header({ activeSection }: HeaderProps): React.JSX.Element {
           menuOpen ? 'translate-x-0' : 'translate-x-full',
         ].join(' ')}
       >
-        <BrandLogo />
+        <div className="flex items-center justify-between gap-3">
+          <BrandLogo />
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            className="tap-target inline-flex min-h-11 w-11 items-center justify-center rounded-xl border border-surface/75 bg-surface/66 text-brand-800"
+            aria-label="Close menu"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 6 18 18" />
+              <path d="M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
         <nav className="mt-7 grid gap-2">
           {navItems.map((item) => (
             <a
