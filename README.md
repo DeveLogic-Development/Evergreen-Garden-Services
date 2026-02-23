@@ -102,7 +102,7 @@ Set:
 - `pnpm dev` - run web app
 - `pnpm dev:landing` - run landing app
 - `pnpm dev:landing:email` - run landing via `vercel dev` (includes `/api/contact`) on `http://localhost:3001`
-- `pnpm dev:web:email` - run web via `vercel dev` (includes `/api/notify` + `/api/quote-email` + `/api/invoice-email`) on `http://localhost:3002`
+- `pnpm dev:web:email` - run web via `vercel dev` (includes `/api/notify` + `/api/booking-confirmation-email` + `/api/quote-email` + `/api/invoice-email`) on `http://localhost:3002`
 - `pnpm build:landing` - build landing app
 - `pnpm build` - build all packages
 - `pnpm typecheck` - type-check all packages
@@ -157,6 +157,7 @@ Local `apps/web/.env.local` required values:
 - `SMTP_USER=jsuperman55@gmail.com`
 - `SMTP_PASS=<Gmail App Password>`
 - `EMAIL_FROM=jsuperman55@gmail.com` (optional)
+- `BOOKING_FROM_EMAIL=jsuperman55@gmail.com` (optional)
 - `QUOTE_FROM_EMAIL=jsuperman55@gmail.com` (optional)
 - `INVOICE_FROM_EMAIL=jsuperman55@gmail.com` (optional)
 - `APP_URL=http://localhost:3002`
@@ -201,6 +202,7 @@ Both apps now include serverless email endpoints using `nodemailer`:
 
 - `apps/landing/api/contact.ts` for the landing contact form
 - `apps/web/api/notify.ts` for booking / quote / invoice notification emails
+- `apps/web/api/booking-confirmation-email.ts` for customer booking confirmation emails
 - `apps/web/api/quote-email.ts` for customer quote email delivery
 - `apps/web/api/invoice-email.ts` for customer invoice email delivery
 
@@ -209,6 +211,7 @@ For the web app Vercel project, add:
 - `SMTP_USER` = `jsuperman55@gmail.com` (temporary sender address)
 - `SMTP_PASS` = Gmail App Password for `SMTP_USER`
 - `EMAIL_FROM` = optional, defaults to `SMTP_USER`
+- `BOOKING_FROM_EMAIL` = optional, defaults to `EMAIL_FROM`
 - `NOTIFY_TO_EMAIL` = optional, defaults to `jsuperman55@gmail.com`
 - `QUOTE_FROM_EMAIL` = optional, defaults to `EMAIL_FROM`
 - `INVOICE_FROM_EMAIL` = optional, defaults to `EMAIL_FROM`
@@ -249,12 +252,12 @@ Admin:
 - `/admin/invoices`
 - `/admin/settings`
 
-### Quote + Invoice Email Sending (Automatic on Create)
+### Booking + Quote + Invoice Email Sending
 
-When an admin creates a quote or invoice, the app:
+When an admin confirms a booking, creates a quote, or creates an invoice, the app:
 
-- marks it as `sent` (so it appears actionable in the client app)
-- calls the web Vercel API routes `/api/quote-email` and `/api/invoice-email` (nodemailer)
+- marks quote/invoice records as `sent` (so they appear actionable in the client app)
+- calls the web Vercel API routes `/api/booking-confirmation-email`, `/api/quote-email`, and `/api/invoice-email` (nodemailer)
 
 For the web app Vercel project, add:
 
@@ -264,6 +267,7 @@ For the web app Vercel project, add:
 - `SMTP_USER` = `jsuperman55@gmail.com` (temporary sender)
 - `SMTP_PASS` = Gmail App Password for `SMTP_USER`
 - `EMAIL_FROM` = optional default sender
+- `BOOKING_FROM_EMAIL` = optional booking confirmation sender (falls back to `EMAIL_FROM`)
 - `QUOTE_FROM_EMAIL` = optional quote sender (falls back to `EMAIL_FROM`)
 - `INVOICE_FROM_EMAIL` = optional invoice sender (falls back to `EMAIL_FROM`)
 - `APP_URL` = web app base URL (example: `https://evergreen-garden-services-web.vercel.app`)

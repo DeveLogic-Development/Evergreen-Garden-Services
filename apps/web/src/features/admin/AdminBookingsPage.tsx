@@ -7,7 +7,7 @@ import { AppButton, PrimaryButton, SecondaryButton } from '@/components/ui/Butto
 import { StatusBadge } from '@/components/ui/Badge';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { adminUpdateBooking, listAllBookings } from '@/lib/api';
+import { adminUpdateBooking, listAllBookings, sendBookingConfirmationToCustomer } from '@/lib/api';
 import { formatDateTime } from '@/utils/format';
 import { useToast } from '@/components/Toast';
 
@@ -35,18 +35,40 @@ export function AdminBookingsPage(): React.JSX.Element {
   const mutation = useMutation({
     mutationFn: async ({
       bookingId,
+      booking,
       draft,
     }: {
       bookingId: string;
+      booking: Booking;
       draft: { status: BookingStatus; confirmed_datetime: string };
     }) => {
+      const nextConfirmedIso = draft.confirmed_datetime ? new Date(draft.confirmed_datetime).toISOString() : null;
       await adminUpdateBooking(bookingId, {
         status: draft.status,
-        confirmed_datetime: draft.confirmed_datetime ? new Date(draft.confirmed_datetime).toISOString() : null,
+        confirmed_datetime: nextConfirmedIso,
       });
+
+      const shouldSendConfirmation =
+        draft.status === 'confirmed' &&
+        (booking.status !== 'confirmed' || (booking.confirmed_datetime ?? null) !== nextConfirmedIso);
+
+      if (!shouldSendConfirmation) {
+        return { confirmationEmail: null as { emailed: boolean; message?: string } | null };
+      }
+
+      const confirmationEmail = await sendBookingConfirmationToCustomer(bookingId);
+      return { confirmationEmail };
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      if (result.confirmationEmail?.emailed) {
+        pushToast('Booking updated and confirmation emailed to customer', 'success');
+        return;
+      }
+      if (result.confirmationEmail && !result.confirmationEmail.emailed) {
+        pushToast(result.confirmationEmail.message ?? 'Booking updated, but confirmation email failed', 'info');
+        return;
+      }
       pushToast('Booking updated', 'success');
     },
     onError: (error) => {
@@ -115,6 +137,7 @@ export function AdminBookingsPage(): React.JSX.Element {
                 <div>
                   <p className="text-sm font-semibold text-brand-900">{booking.profiles?.full_name ?? 'Customer'}</p>
                   <p className="text-xs text-brand-700">{booking.profiles?.phone ?? '-'}</p>
+                  <p className="text-[11px] text-brand-700/80">Customer notifications use the account email from signup.</p>
                   <p className="text-xs text-brand-700">{booking.services?.name ?? 'Service'}</p>
                   <p className="text-xs text-brand-700">{formatDateTime(booking.requested_datetime)}</p>
                 </div>
@@ -178,7 +201,7 @@ export function AdminBookingsPage(): React.JSX.Element {
               <div className="grid gap-2 sm:grid-cols-3">
                 <PrimaryButton
                   fullWidth
-                  onClick={() => mutation.mutate({ bookingId: booking.id, draft })}
+                  onClick={() => mutation.mutate({ bookingId: booking.id, booking, draft })}
                   disabled={mutation.isPending}
                 >
                   Save booking

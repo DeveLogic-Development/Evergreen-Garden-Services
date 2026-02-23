@@ -92,7 +92,9 @@ export function SignupPage(): React.JSX.Element {
         </div>
         <div>
           <h1 className="text-2xl font-semibold text-brand-900">Create your account</h1>
-          <p className="mt-1 text-sm text-brand-700">You will set up your profile before placing your first booking.</p>
+          <p className="mt-1 text-sm text-brand-700">
+            Your account email is required for booking confirmations, quotes, and invoices.
+          </p>
         </div>
       </div>
 
@@ -103,6 +105,7 @@ export function SignupPage(): React.JSX.Element {
           value={form.email}
           onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
           error={errors.email}
+          hint="We send service updates, quotes, and invoices to this email."
           required
         />
         <FormInput

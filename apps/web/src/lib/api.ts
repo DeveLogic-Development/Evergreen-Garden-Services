@@ -548,6 +548,53 @@ export async function sendInvoiceToCustomer(invoiceId: string): Promise<{ emaile
   return { emailed: true };
 }
 
+export async function sendBookingConfirmationToCustomer(bookingId: string): Promise<{ emailed: boolean; message?: string }> {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.access_token) {
+    return {
+      emailed: false,
+      message: 'Booking confirmation email could not be sent because the admin session is unavailable.',
+    };
+  }
+
+  let payload: { ok?: boolean; error?: string } | null = null;
+  let responseOk = false;
+  try {
+    const response = await fetch('/api/booking-confirmation-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ bookingId }),
+    });
+    responseOk = response.ok;
+    payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+  } catch {
+    responseOk = false;
+  }
+
+  if (!responseOk) {
+    return {
+      emailed: false,
+      message: payload?.error ?? 'Booking was updated, but confirmation email delivery failed. Check SMTP and web API config.',
+    };
+  }
+
+  if (payload && payload.ok === false) {
+    return {
+      emailed: false,
+      message: payload.error ?? 'Booking was updated, but confirmation email could not be sent.',
+    };
+  }
+
+  return { emailed: true };
+}
+
 export async function sendQuoteToCustomer(quoteId: string): Promise<{ emailed: boolean; message?: string }> {
   const { data: quote, error: quoteError } = await supabase
     .from('quotes')
