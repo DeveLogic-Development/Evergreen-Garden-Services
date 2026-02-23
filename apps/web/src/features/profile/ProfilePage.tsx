@@ -21,7 +21,7 @@ const schema = z.object({
 const steps = ['Basic info', 'Address', 'Confirm'];
 
 export function ProfilePage(): React.JSX.Element {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, user } = useAuth();
   const settingsQuery = useQuery({ queryKey: ['settings-public'], queryFn: getPublicSettings });
   const navigate = useNavigate();
   const { pushToast } = useToast();
@@ -101,6 +101,13 @@ export function ProfilePage(): React.JSX.Element {
         {step === 0 ? (
           <div className="space-y-3">
             <FormInput
+              label="Account email"
+              value={user?.email ?? ''}
+              readOnly
+              hint="This is your registration email and is used for booking confirmations, quotes, and invoices."
+              className="bg-surface/60 text-brand-800"
+            />
+            <FormInput
               label="Full name"
               value={form.full_name}
               onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))}
@@ -151,6 +158,7 @@ export function ProfilePage(): React.JSX.Element {
           <div className="space-y-3">
             <div className="rounded-2xl border border-surface/75 bg-surface/70 p-3 text-sm">
               <p className="font-semibold text-brand-900">Check your details</p>
+              <p className="mt-2 text-brand-700">Email: {user?.email ?? '-'}</p>
               <p className="mt-2 text-brand-800">{form.full_name}</p>
               <p className="text-brand-800">{form.phone}</p>
               <p className="mt-1 whitespace-pre-line text-brand-800">
