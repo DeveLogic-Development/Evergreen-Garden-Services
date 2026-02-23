@@ -20,6 +20,7 @@ import {
 import { useToast } from '@/components/Toast';
 import { formatCurrency, formatDate, isOverdue } from '@/utils/format';
 import type { PaymentMethod } from '@/types/db';
+import { sendWebEmailNotification } from '@/lib/emailNotifications';
 
 type LineItem = { description: string; qty: string; unit_price: string };
 
@@ -75,9 +76,26 @@ export function AdminInvoicesPage(): React.JSX.Element {
       });
 
       const emailResult = await sendInvoiceToCustomer(invoiceId);
-      return emailResult;
+      const customerName = (profilesQuery.data ?? []).find((profile) => profile.id === customerId)?.full_name ?? 'Customer';
+      void sendWebEmailNotification({
+        type: 'invoice_created',
+        title: 'Invoice created',
+        summary: `${customerName} invoice ${invoiceId.slice(0, 8)}`,
+        details: {
+          customer_name: customerName,
+          customer_id: customerId,
+          invoice_id: invoiceId,
+          booking_id: bookingId || '',
+          quote_id: quoteId || '',
+          issue_date: issueDate,
+          due_date: dueDate,
+          vat_rate: vatRate,
+          item_count: parsedItems.length,
+        },
+      });
+      return { emailResult };
     },
-    onSuccess: async (emailResult) => {
+    onSuccess: async ({ emailResult }) => {
       await queryClient.invalidateQueries({ queryKey: ['admin-invoices'] });
       await queryClient.invalidateQueries({ queryKey: ['my-invoices'] });
       if (emailResult.emailed) {

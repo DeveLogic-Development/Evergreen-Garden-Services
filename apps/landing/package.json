@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:vercel": "pnpm dlx vercel dev -l 3001",
     "build": "tsc -p tsconfig.app.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
@@ -13,6 +14,7 @@
   "dependencies": {
     "@evergreen/theme": "workspace:*",
     "gsap": "^3.12.7",
+    "nodemailer": "^6.9.15",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "swiper": "^11.2.10"

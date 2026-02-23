@@ -17,6 +17,33 @@ Build only landing:
 pnpm --filter @evergreen/landing build
 ```
 
+## Test email locally (contact form)
+
+Use Vercel local dev so `/api/contact` runs (plain `vite` dev does not run `api/*` routes).
+
+From repo root:
+
+```bash
+pnpm dev:landing:email
+```
+
+Open `http://localhost:3001`.
+
+Required local env in `apps/landing/.env.local`:
+
+- `SMTP_USER=jsuperman55@gmail.com`
+- `SMTP_PASS=<Gmail App Password>`
+- `EMAIL_FROM=jsuperman55@gmail.com` (optional)
+- `CONTACT_TO_EMAIL=jsuperman55@gmail.com` (optional)
+
+Quick API smoke test:
+
+```bash
+curl -X POST http://localhost:3001/api/contact \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Local Test","area":"Cape Town","service":"Garden maintenance","message":"Local contact form email test"}'
+```
+
 ## Environment
 
 Create `apps/landing/.env.local`:
@@ -35,6 +62,12 @@ Variables:
   - If omitted, it defaults to `${VITE_APP_BASE_URL}/login`.
 - `VITE_LOGO_URL` (optional)
   - Set this to replace the placeholder logo quickly.
+- `SMTP_USER`, `SMTP_PASS`
+  - Gmail SMTP credentials for `/api/contact` (use a Gmail App Password, not your normal password).
+- `EMAIL_FROM` (optional)
+  - Defaults to `SMTP_USER`.
+- `CONTACT_TO_EMAIL` (optional)
+  - Defaults to `jsuperman55@gmail.com` (temporary recipient).
 
 ## Deploy independently on Vercel (monorepo)
 
@@ -51,6 +84,10 @@ Add env vars in Vercel:
 - `VITE_APP_BASE_URL`
 - `VITE_SIGN_IN_URL`
 - `VITE_LOGO_URL` (optional)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `EMAIL_FROM` (optional)
+- `CONTACT_TO_EMAIL` (optional)
 
 ## Brand tokens
 

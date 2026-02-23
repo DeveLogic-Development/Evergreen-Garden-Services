@@ -12,10 +12,12 @@ import {
   getSettings,
   listAllBookings,
   listAllQuotes,
+  sendQuoteToCustomer,
   sendInvoiceToCustomer,
 } from '@/lib/api';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { useToast } from '@/components/Toast';
+import { sendWebEmailNotification } from '@/lib/emailNotifications';
 
 type LineItem = { description: string; qty: string; unit_price: string };
 
@@ -71,17 +73,47 @@ export function AdminQuotesPage(): React.JSX.Element {
         throw new Error('Add at least one line item');
       }
 
-      await createQuoteWithItems({
+      const quoteId = await createQuoteWithItems({
         customer_id: selectedBooking.customer_id,
         booking_id: selectedBooking.id,
         valid_until: validUntil,
         vat_rate: Number(vatRate),
         items: parsedItems,
       });
+      const quoteEmailResult = await sendQuoteToCustomer(quoteId);
+
+      return {
+        quoteId,
+        quoteEmailResult,
+        itemCount: parsedItems.length,
+        customerId: selectedBooking.customer_id,
+        bookingId: selectedBooking.id,
+        customerName: selectedBooking.profiles?.full_name ?? 'Customer',
+        serviceName: selectedBooking.services?.name ?? 'Service',
+      };
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      void sendWebEmailNotification({
+        type: 'quote_created',
+        title: 'Quote created',
+        summary: `${result.customerName} (${result.serviceName})`,
+        details: {
+          quote_id: result.quoteId,
+          customer_name: result.customerName,
+          customer_id: result.customerId,
+          booking_id: result.bookingId,
+          service: result.serviceName,
+          valid_until: validUntil,
+          vat_rate: vatRate,
+          item_count: result.itemCount,
+        },
+      });
       await queryClient.invalidateQueries({ queryKey: ['admin-quotes'] });
-      pushToast('Quote created', 'success');
+      if (result.quoteEmailResult.emailed) {
+        pushToast('Quote created and emailed to customer', 'success');
+      } else {
+        pushToast(result.quoteEmailResult.message ?? 'Quote created and available in-app', 'info');
+      }
       setBookingId('');
       setValidUntil('');
       setItems([emptyItem()]);
@@ -94,6 +126,16 @@ export function AdminQuotesPage(): React.JSX.Element {
     mutationFn: async (quoteId: string) => {
       const invoiceId = await createInvoiceFromQuote(quoteId);
       const emailResult = await sendInvoiceToCustomer(invoiceId);
+      void sendWebEmailNotification({
+        type: 'invoice_created',
+        title: 'Invoice created from quote',
+        summary: `Quote ID ${quoteId}`,
+        details: {
+          quote_id: quoteId,
+          invoice_id: invoiceId,
+          source: 'create_invoice_from_quote',
+        },
+      });
       return emailResult;
     },
     onSuccess: async (emailResult) => {

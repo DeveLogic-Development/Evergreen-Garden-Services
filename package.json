@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "pnpm --filter @evergreen/web dev",
     "dev:landing": "pnpm --filter @evergreen/landing dev",
+    "dev:landing:email": "pnpm --dir apps/landing run dev:vercel",
+    "dev:web:email": "pnpm --dir apps/web run dev:vercel",
     "build:landing": "pnpm --filter @evergreen/landing build",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",

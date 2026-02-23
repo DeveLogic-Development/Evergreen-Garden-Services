@@ -8,6 +8,7 @@ import { FormInput, FormSelect, FormTextArea } from '@/components/ui/Input';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
 import { Stepper } from '@/components/ui/Stepper';
 import { createBooking, fetchServices, getPublicSettings } from '@/lib/api';
+import { sendWebEmailNotification } from '@/lib/emailNotifications';
 import { useToast } from '@/components/Toast';
 import { formatDateTime } from '@/utils/format';
 import { useAuth } from '@/features/auth/AuthProvider';
@@ -93,6 +94,19 @@ export function BookPage(): React.JSX.Element {
       });
     },
     onSuccess: async () => {
+      void sendWebEmailNotification({
+        type: 'booking_created',
+        title: 'New booking request submitted',
+        summary: `${profile?.full_name ?? 'Customer'} requested ${selectedService?.name ?? 'a service'}`,
+        details: {
+          customer_name: profile?.full_name ?? 'Unknown',
+          customer_phone: profile?.phone ?? '',
+          service: selectedService?.name ?? '',
+          requested_datetime: form.requested_datetime_local || '',
+          address: form.street_address && form.area ? composeServiceAddress(form.street_address, form.area) : '',
+          notes: form.notes || '',
+        },
+      });
       await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
       setForm({
         service_id: '',

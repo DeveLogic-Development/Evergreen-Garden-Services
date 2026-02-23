@@ -101,6 +101,8 @@ Set:
 
 - `pnpm dev` - run web app
 - `pnpm dev:landing` - run landing app
+- `pnpm dev:landing:email` - run landing via `vercel dev` (includes `/api/contact`) on `http://localhost:3001`
+- `pnpm dev:web:email` - run web via `vercel dev` (includes `/api/notify` + `/api/quote-email` + `/api/invoice-email`) on `http://localhost:3002`
 - `pnpm build:landing` - build landing app
 - `pnpm build` - build all packages
 - `pnpm typecheck` - type-check all packages
@@ -118,6 +120,48 @@ pnpm --filter @evergreen/landing dev
 
 Landing runs at Vite default (typically `http://localhost:5173`).
 
+### Test email locally (Vercel API routes)
+
+Use `vercel dev` when testing email features locally. Plain Vite dev does not run `api/*` routes.
+
+Landing contact form (runs app + `/api/contact`):
+
+```bash
+pnpm dev:landing:email
+```
+
+Open `http://localhost:3001`.
+
+Web app notifications + customer invoice emails (runs app + `/api/notify` + `/api/invoice-email`):
+
+```bash
+pnpm dev:web:email
+```
+
+Open `http://localhost:3002`.
+
+Local `apps/landing/.env.local` required values:
+
+- `SMTP_USER=jsuperman55@gmail.com`
+- `SMTP_PASS=<Gmail App Password>`
+- `EMAIL_FROM=jsuperman55@gmail.com` (optional)
+- `CONTACT_TO_EMAIL=jsuperman55@gmail.com` (optional)
+
+Local `apps/web/.env.local` required values:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SMTP_USER=jsuperman55@gmail.com`
+- `SMTP_PASS=<Gmail App Password>`
+- `EMAIL_FROM=jsuperman55@gmail.com` (optional)
+- `QUOTE_FROM_EMAIL=jsuperman55@gmail.com` (optional)
+- `INVOICE_FROM_EMAIL=jsuperman55@gmail.com` (optional)
+- `APP_URL=http://localhost:3002`
+- `NOTIFY_TO_EMAIL=jsuperman55@gmail.com` (optional)
+
 ### Deploy landing independently on Vercel (monorepo)
 
 1. Create a new Vercel project from this repository.
@@ -131,6 +175,10 @@ Landing runs at Vite default (typically `http://localhost:5173`).
 - `VITE_APP_BASE_URL` = `https://evergreen-garden-services-web.vercel.app`
 - `VITE_SIGN_IN_URL` = optional (absolute URL or `/login`, defaults to `${VITE_APP_BASE_URL}/login`)
 - `VITE_LOGO_URL` = optional hosted logo URL
+- `SMTP_USER` = `jsuperman55@gmail.com` (temporary sender address)
+- `SMTP_PASS` = Gmail App Password for `SMTP_USER`
+- `EMAIL_FROM` = optional, defaults to `SMTP_USER`
+- `CONTACT_TO_EMAIL` = optional, defaults to `jsuperman55@gmail.com`
 4. Deploy.
 
 ### Logo replacement
@@ -146,6 +194,28 @@ Set `VITE_LOGO_URL` for one-line logo swap without changing component markup.
 
 Landing auth links are in `apps/landing/src/lib/app-links.ts`.
 Current routes match the web app: `/signup` and `/login`.
+
+### Nodemailer Email Notifications (Vercel API)
+
+Both apps now include serverless email endpoints using `nodemailer`:
+
+- `apps/landing/api/contact.ts` for the landing contact form
+- `apps/web/api/notify.ts` for booking / quote / invoice notification emails
+- `apps/web/api/quote-email.ts` for customer quote email delivery
+- `apps/web/api/invoice-email.ts` for customer invoice email delivery
+
+For the web app Vercel project, add:
+
+- `SMTP_USER` = `jsuperman55@gmail.com` (temporary sender address)
+- `SMTP_PASS` = Gmail App Password for `SMTP_USER`
+- `EMAIL_FROM` = optional, defaults to `SMTP_USER`
+- `NOTIFY_TO_EMAIL` = optional, defaults to `jsuperman55@gmail.com`
+- `QUOTE_FROM_EMAIL` = optional, defaults to `EMAIL_FROM`
+- `INVOICE_FROM_EMAIL` = optional, defaults to `EMAIL_FROM`
+- `APP_URL` = web app URL for invoice portal links
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-side invoice lookup)
+
+Note: Gmail requires an App Password when 2FA is enabled.
 
 ## Admin Role Setup
 
@@ -179,28 +249,24 @@ Admin:
 - `/admin/invoices`
 - `/admin/settings`
 
-### Invoice Email Sending (Automatic on Create)
+### Quote + Invoice Email Sending (Automatic on Create)
 
-When an admin creates an invoice (from Invoices screen or from Quote), the app:
+When an admin creates a quote or invoice, the app:
 
-- marks it as `sent` (so it appears on the client side app)
-- calls Supabase Edge Function: `send-invoice-email`
+- marks it as `sent` (so it appears actionable in the client app)
+- calls the web Vercel API routes `/api/quote-email` and `/api/invoice-email` (nodemailer)
 
-Deploy and configure:
+For the web app Vercel project, add:
 
-```bash
-supabase functions deploy send-invoice-email
-```
-
-Set function secrets:
-
-- `RESEND_API_KEY`
-- `INVOICE_FROM_EMAIL` (example: `Evergreen Garden <billing@yourdomain.com>`)
-- `APP_URL` (example: `http://localhost:5173` or production app URL)
-
-The function source is at:
-
-- `supabase/functions/send-invoice-email/index.ts`
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SMTP_USER` = `jsuperman55@gmail.com` (temporary sender)
+- `SMTP_PASS` = Gmail App Password for `SMTP_USER`
+- `EMAIL_FROM` = optional default sender
+- `QUOTE_FROM_EMAIL` = optional quote sender (falls back to `EMAIL_FROM`)
+- `INVOICE_FROM_EMAIL` = optional invoice sender (falls back to `EMAIL_FROM`)
+- `APP_URL` = web app base URL (example: `https://evergreen-garden-services-web.vercel.app`)
 
 ## PWA
 

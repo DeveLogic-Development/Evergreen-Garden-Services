@@ -389,8 +389,8 @@ export async function createQuoteWithItems(input: {
   valid_until: string;
   vat_rate: number;
   items: LineItemInput[];
-}): Promise<void> {
-  const { error } = await supabase.rpc('create_quote_with_items', {
+}): Promise<string> {
+  const { data, error } = await supabase.rpc('create_quote_with_items', {
     p_customer_id: input.customer_id,
     p_booking_id: input.booking_id,
     p_valid_until: input.valid_until,
@@ -401,6 +401,12 @@ export async function createQuoteWithItems(input: {
   if (error) {
     throw error;
   }
+
+  const quoteId = data as string | null;
+  if (!quoteId) {
+    throw new Error('Quote created but no quote id was returned');
+  }
+  return quoteId;
 }
 
 export async function createInvoiceWithItems(input: {
@@ -496,23 +502,113 @@ export async function sendInvoiceToCustomer(invoiceId: string): Promise<{ emaile
     }
   }
 
-  const { data, error } = await supabase.functions.invoke('send-invoice-email', {
-    body: { invoiceId },
-  });
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (error) {
+  if (sessionError || !session?.access_token) {
     return {
       emailed: false,
-      message:
-        'Invoice is now available to the client, but email delivery failed. Configure/deploy send-invoice-email.',
+      message: 'Invoice is available to the client, but email delivery failed because the admin session is unavailable.',
     };
   }
 
-  const payload = data as { ok?: boolean; error?: string } | null;
+  let payload: { ok?: boolean; error?: string } | null = null;
+  let responseOk = false;
+  try {
+    const response = await fetch('/api/invoice-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ invoiceId }),
+    });
+    responseOk = response.ok;
+    payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+  } catch {
+    responseOk = false;
+  }
+
+  if (!responseOk) {
+    return {
+      emailed: false,
+      message: payload?.error ?? 'Invoice is now available to the client, but email delivery failed. Check SMTP and web API config.',
+    };
+  }
+
   if (payload && payload.ok === false) {
     return {
       emailed: false,
       message: payload.error ?? 'Invoice is available to the client, but email could not be sent.',
+    };
+  }
+
+  return { emailed: true };
+}
+
+export async function sendQuoteToCustomer(quoteId: string): Promise<{ emailed: boolean; message?: string }> {
+  const { data: quote, error: quoteError } = await supabase
+    .from('quotes')
+    .select('id, status')
+    .eq('id', quoteId)
+    .maybeSingle();
+
+  if (quoteError) {
+    throw quoteError;
+  }
+  if (!quote) {
+    throw new Error('Quote not found');
+  }
+
+  if (quote.status === 'draft') {
+    const { error: sendStatusError } = await supabase.from('quotes').update({ status: 'sent' }).eq('id', quoteId);
+    if (sendStatusError) {
+      throw sendStatusError;
+    }
+  }
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.access_token) {
+    return {
+      emailed: false,
+      message: 'Quote is available in-app, but email delivery failed because the admin session is unavailable.',
+    };
+  }
+
+  let payload: { ok?: boolean; error?: string } | null = null;
+  let responseOk = false;
+  try {
+    const response = await fetch('/api/quote-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ quoteId }),
+    });
+    responseOk = response.ok;
+    payload = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+  } catch {
+    responseOk = false;
+  }
+
+  if (!responseOk) {
+    return {
+      emailed: false,
+      message: payload?.error ?? 'Quote is now available to the client, but email delivery failed. Check SMTP and web API config.',
+    };
+  }
+
+  if (payload && payload.ok === false) {
+    return {
+      emailed: false,
+      message: payload.error ?? 'Quote is available to the client, but email could not be sent.',
     };
   }
 
