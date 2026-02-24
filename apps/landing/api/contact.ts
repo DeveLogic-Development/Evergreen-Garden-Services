@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { escapeHtml, renderEmailShell, renderPanel } from './_lib/emailTheme';
 
 type ContactPayload = {
   name?: string;
@@ -68,6 +69,8 @@ export default async function handler(req: any, res: any) {
     const { transporter, user } = getTransporter();
     const to = process.env.CONTACT_TO_EMAIL || 'jsuperman55@gmail.com';
     const from = process.env.EMAIL_FROM || user;
+    const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+    const logoUrl = `${appUrl}/images/logoEGS.png`;
 
     await transporter.sendMail({
       from,
@@ -85,14 +88,25 @@ export default async function handler(req: any, res: any) {
         message,
       ].join('\n'),
       html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0A4121">
-          <h2 style="margin:0 0 12px">New landing contact request</h2>
-          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-          <p><strong>Area:</strong> ${escapeHtml(area)}</p>
-          <p><strong>Service:</strong> ${escapeHtml(service)}</p>
-          <p><strong>Message:</strong></p>
-          <p style="white-space:pre-wrap">${escapeHtml(message)}</p>
-        </div>
+        ${renderEmailShell({
+          eyebrow: 'Landing Website',
+          title: 'New Contact Request',
+          subtitle: 'Lead enquiry submitted from the Evergreen landing page.',
+          introHtml: 'A visitor submitted the contact form on the landing website.',
+          bodyHtml:
+            renderPanel(
+              'Lead details',
+              `
+                <div><strong>Name:</strong> ${escapeHtml(name)}</div>
+                <div style="margin-top:4px;"><strong>Area:</strong> ${escapeHtml(area)}</div>
+                <div style="margin-top:4px;"><strong>Service:</strong> ${escapeHtml(service)}</div>
+              `,
+            ) +
+            renderPanel('Message', `<div style="white-space:pre-wrap;">${escapeHtml(message)}</div>`),
+          footerNote: 'Follow up with this client from your preferred business email or CRM workflow.',
+          logoUrl,
+          preheader: `New contact request for ${service}`,
+        })}
       `,
     });
 
@@ -101,13 +115,4 @@ export default async function handler(req: any, res: any) {
     const message = error instanceof Error ? error.message : 'Failed to send contact email';
     return json(res, 500, { ok: false, error: message });
   }
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }

@@ -29,7 +29,15 @@ import { WelcomePage } from '@/features/onboarding/WelcomePage';
 const AdminRoutes = lazy(() => import('@/features/admin/AdminRoutes'));
 
 function HomeRedirect(): React.JSX.Element {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading, isProfileComplete } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4 text-center text-sm text-brand-700">
+        Loading...
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -41,6 +49,10 @@ function HomeRedirect(): React.JSX.Element {
 
   if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  if (!isProfileComplete) {
+    return <Navigate to="/profile" replace />;
   }
 
   return <Navigate to="/bookings" replace />;

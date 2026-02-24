@@ -27,7 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const refreshProfile = useCallback(async (): Promise<void> => {
     const currentUser = user;
@@ -53,12 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     const init = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
-        setLoading(false);
+        setAuthLoading(false);
         return;
       }
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      setLoading(false);
+      setAuthLoading(false);
     };
 
     void init();
@@ -70,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       setUser(nextSession?.user ?? null);
       if (!nextSession?.user) {
         setProfile(null);
+        setProfileLoading(false);
       }
     });
 
@@ -81,11 +83,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   useEffect(() => {
     if (!user) {
       setProfile(null);
+      setProfileLoading(false);
       return;
     }
 
-    void refreshProfile();
+    setProfileLoading(true);
+    void refreshProfile()
+      .catch(() => {
+        // Errors are surfaced by downstream screens when they fetch data directly.
+      })
+      .finally(() => {
+        setProfileLoading(false);
+      });
   }, [user, refreshProfile]);
+
+  const loading = authLoading || (!!user && profileLoading);
 
   const value = useMemo<AuthContextValue>(
     () => ({

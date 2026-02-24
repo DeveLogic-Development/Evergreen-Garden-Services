@@ -26,7 +26,11 @@ export function RequireAuth(): React.JSX.Element {
 }
 
 export function RequireProfileComplete(): React.JSX.Element {
-  const { isProfileComplete, user } = useAuth();
+  const { isProfileComplete, loading, user } = useAuth();
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

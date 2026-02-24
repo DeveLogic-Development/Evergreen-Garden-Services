@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { escapeHtml, renderEmailShell, renderRows } from './_lib/emailTheme';
 
 type SendInvoicePayload = {
   invoiceId?: string;
@@ -142,20 +143,22 @@ export default async function handler(req: any, res: any) {
         'Evergreen Garden Services',
       ].join('\n'),
       html: `
-        ${renderBrandedEmail({
+        ${renderEmailShell({
           title: 'Your Invoice Is Ready',
           eyebrow: 'Evergreen Garden Services',
-          customerName,
-          intro: `Your invoice <strong>${escapeHtml(invoice.invoice_number)}</strong> is now available.`,
-          rows: [
+          subtitle: 'View your invoice and upload proof of payment.',
+          greeting: `Hello ${customerName},`,
+          introHtml: `Your invoice <strong>${escapeHtml(invoice.invoice_number)}</strong> is now available.`,
+          bodyHtml: renderRows([
             { label: 'Invoice number', value: invoice.invoice_number },
             { label: 'Total', value: `R ${Number(invoice.total).toFixed(2)}` },
             { label: 'Due date', value: invoice.due_date },
-          ],
+          ]),
           ctaLabel: 'View Invoice',
           ctaHref: invoiceLink,
           footerNote: 'You can view this invoice and upload proof of payment in your client portal.',
           logoUrl,
+          preheader: `Invoice ${invoice.invoice_number} is ready`,
         })}
       `,
     });
@@ -167,81 +170,4 @@ export default async function handler(req: any, res: any) {
       error: error instanceof Error ? error.message : 'Unexpected error',
     });
   }
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-function renderBrandedEmail(input: {
-  title: string;
-  eyebrow: string;
-  customerName: string;
-  intro: string;
-  rows: Array<{ label: string; value: string }>;
-  ctaLabel: string;
-  ctaHref: string;
-  footerNote: string;
-  logoUrl: string;
-}): string {
-  const rowsHtml = input.rows
-    .map(
-      (row) => `
-        <tr>
-          <td style="padding:8px 0;color:#216732;font-size:13px;">${escapeHtml(row.label)}</td>
-          <td style="padding:8px 0;color:#0A4121;font-size:13px;font-weight:700;text-align:right;">${escapeHtml(row.value)}</td>
-        </tr>
-      `,
-    )
-    .join('');
-
-  return `
-    <div style="margin:0;padding:24px 12px;background:#F1F3E8;font-family:Arial,sans-serif;color:#0A4121;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;margin:0 auto;border-collapse:separate;border-spacing:0;">
-        <tr>
-          <td style="padding:0 0 14px 0;">
-            <div style="background:linear-gradient(135deg,#094A2B,#155128);border-radius:18px;padding:16px 18px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="width:56px;vertical-align:middle;">
-                    <img src="${escapeHtml(input.logoUrl)}" alt="Evergreen Garden Services" width="48" height="48" style="display:block;border-radius:12px;background:#ffffff;object-fit:contain;" />
-                  </td>
-                  <td style="vertical-align:middle;padding-left:10px;">
-                    <div style="color:#FCEA78;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;">${escapeHtml(input.eyebrow)}</div>
-                    <div style="color:#ffffff;font-size:20px;font-weight:700;line-height:1.2;margin-top:4px;">${escapeHtml(input.title)}</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="background:#ffffff;border:1px solid #CFDED2;border-radius:18px;padding:20px;">
-            <p style="margin:0 0 10px 0;font-size:14px;line-height:1.6;color:#0A4121;">Hello ${escapeHtml(input.customerName)},</p>
-            <p style="margin:0 0 14px 0;font-size:14px;line-height:1.6;color:#0A4121;">${input.intro}</p>
-
-            <div style="border:1px solid #CFDED2;border-radius:14px;padding:14px 16px;background:#F7F8F1;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-                ${rowsHtml}
-              </table>
-            </div>
-
-            <div style="padding-top:18px;">
-              <a href="${escapeHtml(input.ctaHref)}" style="display:inline-block;background:#2F7034;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 16px;border-radius:12px;">
-                ${escapeHtml(input.ctaLabel)}
-              </a>
-            </div>
-
-            <p style="margin:14px 0 0 0;font-size:12px;line-height:1.6;color:#216732;">${escapeHtml(input.footerNote)}</p>
-            <p style="margin:14px 0 0 0;font-size:13px;line-height:1.6;color:#0A4121;">Thank you,<br /><strong>Evergreen Garden Services</strong></p>
-          </td>
-        </tr>
-      </table>
-    </div>
-  `;
 }
