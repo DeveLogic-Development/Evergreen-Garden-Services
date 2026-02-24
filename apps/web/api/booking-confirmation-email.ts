@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
-import { escapeHtml, renderEmailShell, renderPanel, renderRows } from './_lib/emailTheme';
+import { escapeHtml, renderEmailShell, renderPanel, renderRows } from './_lib/emailTheme.js';
 
 type SendBookingPayload = {
   bookingId?: string;

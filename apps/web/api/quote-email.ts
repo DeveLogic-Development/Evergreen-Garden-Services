@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
-import { escapeHtml, renderEmailShell, renderRows } from './_lib/emailTheme';
+import { escapeHtml, renderEmailShell, renderRows } from './_lib/emailTheme.js';
 
 type SendQuotePayload = {
   quoteId?: string;

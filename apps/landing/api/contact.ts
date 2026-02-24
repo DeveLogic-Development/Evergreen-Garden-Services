@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { escapeHtml, renderEmailShell, renderPanel } from './_lib/emailTheme';
+import { escapeHtml, renderEmailShell, renderPanel } from './_lib/emailTheme.js';
 
 type ContactPayload = {
   name?: string;
