@@ -10,8 +10,15 @@ const COLORS = {
   muted: '#CFDED2',
 } as const;
 
-export function escapeHtml(value: string): string {
-  return value
+function toText(value: unknown): string {
+  if (value == null) {
+    return '';
+  }
+  return String(value);
+}
+
+export function escapeHtml(value: unknown): string {
+  return toText(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -109,4 +116,3 @@ export function renderEmailShell(input: {
     </html>
   `;
 }
-

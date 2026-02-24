@@ -10,8 +10,15 @@ const COLORS = {
   muted: '#CFDED2',
 } as const;
 
-export function escapeHtml(value: string): string {
-  return value
+function toText(value: unknown): string {
+  if (value == null) {
+    return '';
+  }
+  return String(value);
+}
+
+export function escapeHtml(value: unknown): string {
+  return toText(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -19,7 +26,7 @@ export function escapeHtml(value: string): string {
     .replaceAll("'", '&#39;');
 }
 
-export function renderRows(rows: Array<{ label: string; value: string }>): string {
+export function renderRows(rows: Array<{ label: string; value: unknown }>): string {
   if (!rows.length) {
     return '';
   }
@@ -29,7 +36,7 @@ export function renderRows(rows: Array<{ label: string; value: string }>): strin
       (row) => `
         <tr>
           <td style="padding:8px 0;color:${COLORS.brand600};font-size:13px;line-height:1.4;vertical-align:top;">${escapeHtml(row.label)}</td>
-          <td style="padding:8px 0;color:${COLORS.brand800};font-size:13px;line-height:1.4;font-weight:700;text-align:right;vertical-align:top;">${escapeHtml(row.value)}</td>
+          <td style="padding:8px 0;color:${COLORS.brand800};font-size:13px;line-height:1.4;font-weight:700;text-align:right;vertical-align:top;">${escapeHtml(row.value) || '-'}</td>
         </tr>
       `,
     )
@@ -163,4 +170,3 @@ export function renderEmailShell(input: {
     </html>
   `;
 }
-

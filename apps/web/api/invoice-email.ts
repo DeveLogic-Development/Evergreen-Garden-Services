@@ -165,6 +165,7 @@ export default async function handler(req: any, res: any) {
 
     return json(res, 200, { ok: true });
   } catch (error) {
+    console.error('invoice-email error', error);
     return json(res, 500, {
       ok: false,
       error: error instanceof Error ? error.message : 'Unexpected error',
