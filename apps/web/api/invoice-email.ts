@@ -130,7 +130,7 @@ export default async function handler(req: any, res: any) {
     const configuredReplyTo = process.env.INVOICE_FROM_EMAIL || process.env.EMAIL_FROM || user;
     const mailHeaders = resolveMailHeaders(user, configuredReplyTo);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
-    const invoiceLink = `${appUrl}/invoices`;
+    const loginLink = `${appUrl}/login`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
 
@@ -146,7 +146,7 @@ export default async function handler(req: any, res: any) {
         `Total: R ${Number(invoice.total).toFixed(2)}`,
         `Due date: ${invoice.due_date}`,
         '',
-        `View your invoice in your client portal: ${invoiceLink}`,
+        `Sign in to your client portal to view your invoice: ${loginLink}`,
         '',
         'Thank you,',
         'Evergreen Garden Services',
@@ -164,8 +164,8 @@ export default async function handler(req: any, res: any) {
             { label: 'Due date', value: invoice.due_date },
           ]),
           ctaLabel: 'View Invoice',
-          ctaHref: invoiceLink,
-          footerNote: 'You can view this invoice and upload proof of payment in your client portal.',
+          ctaHref: loginLink,
+          footerNote: 'Sign in to your client portal to view this invoice and upload proof of payment.',
           logoUrl,
           preheader: `Invoice ${invoice.invoice_number} is ready`,
         })}

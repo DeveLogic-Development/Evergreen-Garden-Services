@@ -128,7 +128,7 @@ export default async function handler(req: any, res: any) {
     const configuredReplyTo = process.env.QUOTE_FROM_EMAIL || process.env.EMAIL_FROM || user;
     const mailHeaders = resolveMailHeaders(user, configuredReplyTo);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
-    const quoteLink = `${appUrl}/quotes`;
+    const loginLink = `${appUrl}/login`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
 
@@ -144,7 +144,7 @@ export default async function handler(req: any, res: any) {
         `Total: R ${Number(quote.total).toFixed(2)}`,
         `Valid until: ${quote.valid_until}`,
         '',
-        `View and accept/decline your quote in the client portal: ${quoteLink}`,
+        `Sign in to your client portal to review your quote: ${loginLink}`,
         '',
         'Thank you,',
         'Evergreen Garden Services',
@@ -162,8 +162,8 @@ export default async function handler(req: any, res: any) {
             { label: 'Valid until', value: quote.valid_until },
           ]),
           ctaLabel: 'Review Quote',
-          ctaHref: quoteLink,
-          footerNote: 'You can view, accept, or decline this quote in your client portal.',
+          ctaHref: loginLink,
+          footerNote: 'Sign in to your client portal to view, accept, or decline this quote.',
           logoUrl,
           preheader: `Quote ${quote.quote_number} is ready to review`,
         })}

@@ -129,7 +129,7 @@ export default async function handler(req: any, res: any) {
     const configuredReplyTo = process.env.BOOKING_FROM_EMAIL || process.env.EMAIL_FROM || user;
     const mailHeaders = resolveMailHeaders(user, configuredReplyTo);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
-    const bookingsLink = `${appUrl}/bookings`;
+    const loginLink = `${appUrl}/login`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
     const serviceName = booking.services?.name ?? 'Garden service';
@@ -151,7 +151,7 @@ export default async function handler(req: any, res: any) {
         `Status: ${booking.status}`,
         `Address: ${booking.address}`,
         '',
-        `View your booking in the client portal: ${bookingsLink}`,
+        `Sign in to your client portal to view your booking: ${loginLink}`,
         '',
         'Thank you,',
         'Evergreen Garden Services',
@@ -172,8 +172,8 @@ export default async function handler(req: any, res: any) {
             ]) +
             renderPanel('Service address', `<div style="white-space:pre-wrap;">${escapeHtml(booking.address)}</div>`),
           ctaLabel: 'View Booking',
-          ctaHref: bookingsLink,
-          footerNote: 'You can check booking updates and future service activity in your client portal.',
+          ctaHref: loginLink,
+          footerNote: 'Sign in to your client portal to check booking updates and future service activity.',
           logoUrl,
           preheader: `Booking confirmed for ${serviceName}`,
         })}

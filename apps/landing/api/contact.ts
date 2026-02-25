@@ -61,6 +61,42 @@ function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
   };
 }
 
+function buildTextEmail(name: string, area: string, service: string, message: string): string {
+  return [
+    'Evergreen landing notification',
+    '',
+    'New contact request received',
+    '',
+    `Name: ${name}`,
+    `Area: ${area}`,
+    `Service requested: ${service}`,
+    '',
+    'Message:',
+    message,
+    '',
+    'Next step: reply from your business email or contact the client directly.',
+  ].join('\n');
+}
+
+function buildHtmlEmail(name: string, area: string, service: string, message: string) {
+  return renderPanel(
+    'Lead summary',
+    `
+      <div style="display:inline-block;background:#EAF4EE;border:1px solid #CFDED2;color:#155128;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;">
+        New Website Lead
+      </div>
+      <div style="margin-top:10px;"><strong>Name:</strong> ${escapeHtml(name)}</div>
+      <div style="margin-top:6px;"><strong>Area:</strong> ${escapeHtml(area)}</div>
+      <div style="margin-top:6px;"><strong>Service requested:</strong> ${escapeHtml(service)}</div>
+    `,
+  )
+    + renderPanel('Message', `<div style="white-space:pre-wrap;">${escapeHtml(message)}</div>`)
+    + renderPanel(
+      'Next step',
+      'Reply from your business email or follow up with the client in your preferred CRM workflow.',
+    );
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -85,32 +121,14 @@ export default async function handler(req: any, res: any) {
       to,
       replyTo: mailHeaders.replyTo,
       subject: `Evergreen landing contact request: ${service}`,
-      text: [
-        'New landing contact form submission',
-        '',
-        `Name: ${name}`,
-        `Area: ${area}`,
-        `Service: ${service}`,
-        '',
-        'Message:',
-        message,
-      ].join('\n'),
+      text: buildTextEmail(name, area, service, message),
       html: `
         ${renderEmailShell({
           eyebrow: 'Landing Website',
           title: 'New Contact Request',
           subtitle: 'Lead enquiry submitted from the Evergreen landing page.',
           introHtml: 'A visitor submitted the contact form on the landing website.',
-          bodyHtml:
-            renderPanel(
-              'Lead details',
-              `
-                <div><strong>Name:</strong> ${escapeHtml(name)}</div>
-                <div style="margin-top:4px;"><strong>Area:</strong> ${escapeHtml(area)}</div>
-                <div style="margin-top:4px;"><strong>Service:</strong> ${escapeHtml(service)}</div>
-              `,
-            ) +
-            renderPanel('Message', `<div style="white-space:pre-wrap;">${escapeHtml(message)}</div>`),
+          bodyHtml: buildHtmlEmail(name, area, service, message),
           footerNote: 'Follow up with this client from your preferred business email or CRM workflow.',
           logoUrl,
           preheader: `New contact request for ${service}`,
