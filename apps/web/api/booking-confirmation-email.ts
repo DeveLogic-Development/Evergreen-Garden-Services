@@ -41,6 +41,14 @@ function getTransporter() {
   };
 }
 
+function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
+  const replyTo = (configuredReplyTo || '').trim() || smtpUser;
+  return {
+    from: `Evergreen Garden Services <${smtpUser}>`,
+    replyTo,
+  };
+}
+
 function getSupabaseEnv() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const supabaseAnonKey =
@@ -118,7 +126,8 @@ export default async function handler(req: any, res: any) {
     }
 
     const { transporter, user } = getTransporter();
-    const from = process.env.BOOKING_FROM_EMAIL || process.env.EMAIL_FROM || user;
+    const configuredReplyTo = process.env.BOOKING_FROM_EMAIL || process.env.EMAIL_FROM || user;
+    const mailHeaders = resolveMailHeaders(user, configuredReplyTo);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
     const bookingsLink = `${appUrl}/bookings`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
@@ -128,9 +137,9 @@ export default async function handler(req: any, res: any) {
     const requestedText = formatDateTime(booking.requested_datetime);
 
     await transporter.sendMail({
-      from,
+      from: mailHeaders.from,
       to: customerEmail,
-      replyTo: from,
+      replyTo: mailHeaders.replyTo,
       subject: `Booking confirmed for ${serviceName} | Evergreen Garden Services`,
       text: [
         `Hello ${customerName},`,
@@ -173,6 +182,7 @@ export default async function handler(req: any, res: any) {
 
     return json(res, 200, { ok: true });
   } catch (error) {
+    console.error('booking-confirmation-email error', error);
     return json(res, 500, { ok: false, error: error instanceof Error ? error.message : 'Unexpected error' });
   }
 }

@@ -45,6 +45,14 @@ function getTransporter() {
   };
 }
 
+function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
+  const replyTo = (configuredReplyTo || '').trim() || smtpUser;
+  return {
+    from: `Evergreen Garden Services <${smtpUser}>`,
+    replyTo,
+  };
+}
+
 function normalize(value: unknown): string {
   if (value == null) {
     return '';
@@ -89,14 +97,14 @@ export default async function handler(req: any, res: any) {
 
     const { transporter, user } = getTransporter();
     const to = process.env.NOTIFY_TO_EMAIL || 'jsuperman55@gmail.com';
-    const from = process.env.EMAIL_FROM || user;
+    const mailHeaders = resolveMailHeaders(user, process.env.EMAIL_FROM || user);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
     const logoUrl = `${appUrl}/images/logoEGS.png`;
 
     await transporter.sendMail({
-      from,
+      from: mailHeaders.from,
       to,
-      replyTo: from,
+      replyTo: mailHeaders.replyTo,
       subject: `Evergreen notification: ${title}`,
       text: ['Evergreen web notification', '', `Type: ${payload.type}`, `Title: ${title}`, summary ? `Summary: ${summary}` : '', '', ...lines]
         .filter(Boolean)
@@ -132,6 +140,7 @@ export default async function handler(req: any, res: any) {
 
     return json(res, 200, { ok: true });
   } catch (error) {
+    console.error('notify-email error', error);
     const message = error instanceof Error ? error.message : 'Failed to send notification email';
     return json(res, 500, { ok: false, error: message });
   }

@@ -41,6 +41,14 @@ function getTransporter() {
   };
 }
 
+function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
+  const replyTo = (configuredReplyTo || '').trim() || smtpUser;
+  return {
+    from: `Evergreen Garden Services <${smtpUser}>`,
+    replyTo,
+  };
+}
+
 function getSupabaseEnv() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
@@ -117,16 +125,17 @@ export default async function handler(req: any, res: any) {
     }
 
     const { transporter, user } = getTransporter();
-    const from = process.env.QUOTE_FROM_EMAIL || process.env.EMAIL_FROM || user;
+    const configuredReplyTo = process.env.QUOTE_FROM_EMAIL || process.env.EMAIL_FROM || user;
+    const mailHeaders = resolveMailHeaders(user, configuredReplyTo);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
     const quoteLink = `${appUrl}/quotes`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
 
     await transporter.sendMail({
-      from,
+      from: mailHeaders.from,
       to: customerEmail,
-      replyTo: from,
+      replyTo: mailHeaders.replyTo,
       subject: `Quote ${quote.quote_number} from Evergreen Garden Services`,
       text: [
         `Hello ${customerName},`,
@@ -163,6 +172,7 @@ export default async function handler(req: any, res: any) {
 
     return json(res, 200, { ok: true });
   } catch (error) {
+    console.error('quote-email error', error);
     return json(res, 500, {
       ok: false,
       error: error instanceof Error ? error.message : 'Unexpected error',

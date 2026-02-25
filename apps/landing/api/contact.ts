@@ -53,6 +53,14 @@ function getTransporter() {
   };
 }
 
+function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
+  const replyTo = (configuredReplyTo || '').trim() || smtpUser;
+  return {
+    from: `Evergreen Garden Services <${smtpUser}>`,
+    replyTo,
+  };
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -68,14 +76,14 @@ export default async function handler(req: any, res: any) {
 
     const { transporter, user } = getTransporter();
     const to = process.env.CONTACT_TO_EMAIL || 'jsuperman55@gmail.com';
-    const from = process.env.EMAIL_FROM || user;
+    const mailHeaders = resolveMailHeaders(user, process.env.EMAIL_FROM || user);
     const appUrl = (process.env.APP_URL || process.env.VITE_APP_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
     const logoUrl = `${appUrl}/images/logoEGS.png`;
 
     await transporter.sendMail({
-      from,
+      from: mailHeaders.from,
       to,
-      replyTo: from,
+      replyTo: mailHeaders.replyTo,
       subject: `Evergreen landing contact request: ${service}`,
       text: [
         'New landing contact form submission',
@@ -112,6 +120,7 @@ export default async function handler(req: any, res: any) {
 
     return json(res, 200, { ok: true });
   } catch (error) {
+    console.error('landing-contact-email error', error);
     const message = error instanceof Error ? error.message : 'Failed to send contact email';
     return json(res, 500, { ok: false, error: message });
   }
