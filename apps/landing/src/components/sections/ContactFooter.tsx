@@ -4,6 +4,7 @@ import { Container } from '@/components/ui/Container';
 import { navItems } from '@/data/content';
 
 export function ContactFooter(): React.JSX.Element {
+  const currentYear = new Date().getFullYear();
   const [form, setForm] = useState({ name: '', phone: '', email: '', area: '', service: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitState, setSubmitState] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -167,7 +168,20 @@ export function ContactFooter(): React.JSX.Element {
               </div>
             </div>
 
-            <p className="mt-8 text-xs text-brand-700">Evergreen Garden Services. All rights reserved.</p>
+            <div className="mt-8 space-y-1 text-xs text-brand-700">
+              <p>© {currentYear} Evergreen Garden Services. All rights reserved.</p>
+              <p>
+                Designed and developed by{' '}
+                <a
+                  href="https://develogic-digital.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-brand-800 underline decoration-brand-300 underline-offset-2 transition hover:text-brand-600"
+                >
+                  DeveLogic Digital
+                </a>
+              </p>
+            </div>
           </article>
         </div>
       </Container>
