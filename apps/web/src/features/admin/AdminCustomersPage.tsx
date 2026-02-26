@@ -5,7 +5,7 @@ import { StatusBadge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { listAllBookings, listAllInvoices, listAllQuotes, listProfiles } from '@/lib/api';
-import { formatCurrency, formatDate, formatDateTime, isOverdue } from '@/utils/format';
+import { formatCurrency, formatDate, formatDateTime, formatInvoiceNumber, formatQuoteNumber, isOverdue } from '@/utils/format';
 
 const bookingTone = {
   requested: 'warning',
@@ -226,7 +226,7 @@ export function AdminCustomersPage(): React.JSX.Element {
               {selectedQuotes.map((quote) => (
                 <div key={quote.id} className="rounded-2xl border border-surface/80 bg-surface/75 p-3 text-xs">
                   <div className="mb-1 flex items-center justify-between gap-2">
-                    <p className="font-semibold text-brand-900">{quote.quote_number}</p>
+                    <p className="font-semibold text-brand-900">{formatQuoteNumber(quote.quote_number)}</p>
                     <StatusBadge tone={quoteTone[quote.status]}>{quote.status}</StatusBadge>
                   </div>
                   <p className="text-brand-700">Valid until: {formatDate(quote.valid_until)}</p>
@@ -243,7 +243,7 @@ export function AdminCustomersPage(): React.JSX.Element {
                 return (
                   <div key={invoice.id} className="rounded-2xl border border-surface/80 bg-surface/75 p-3 text-xs">
                     <div className="mb-1 flex items-center justify-between gap-2">
-                      <p className="font-semibold text-brand-900">{invoice.invoice_number}</p>
+                      <p className="font-semibold text-brand-900">{formatInvoiceNumber(invoice.invoice_number)}</p>
                       <StatusBadge tone={label === 'paid' ? 'success' : label === 'overdue' ? 'danger' : 'warning'}>
                         {label}
                       </StatusBadge>
@@ -265,7 +265,7 @@ export function AdminCustomersPage(): React.JSX.Element {
                   className="rounded-2xl border border-surface/80 bg-surface/75 p-3 text-xs"
                 >
                   <p className="font-semibold text-brand-900">
-                    {payment.invoice_number} - {formatCurrency(payment.amount)}
+                    {formatInvoiceNumber(payment.invoice_number)} - {formatCurrency(payment.amount)}
                   </p>
                   <p className="text-brand-700">
                     {payment.method} | {formatDateTime(payment.created_at)}

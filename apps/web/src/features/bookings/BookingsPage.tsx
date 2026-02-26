@@ -17,7 +17,7 @@ import {
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { composeServiceAddress, parseServiceAddress, resolveServiceAreas } from '@/lib/serviceAreas';
-import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
+import { formatCurrency, formatDate, formatDateTime, formatQuoteNumber } from '@/utils/format';
 
 const statusTone: Record<string, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> = {
   requested: 'warning',
@@ -374,7 +374,7 @@ export function BookingsPage(): React.JSX.Element {
                   </p>
                   {plan.quotes ? (
                     <p className="text-xs text-brand-700">
-                      Quote {plan.quotes.quote_number} total {formatCurrency(plan.quotes.total)}
+                      Quote {formatQuoteNumber(plan.quotes.quote_number)} total {formatCurrency(plan.quotes.total)}
                     </p>
                   ) : null}
                 </div>

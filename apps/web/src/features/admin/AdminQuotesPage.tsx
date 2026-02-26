@@ -15,7 +15,7 @@ import {
   sendQuoteToCustomer,
   sendInvoiceToCustomer,
 } from '@/lib/api';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatQuoteNumber } from '@/utils/format';
 import { useToast } from '@/components/Toast';
 import { sendWebEmailNotification } from '@/lib/emailNotifications';
 
@@ -277,7 +277,7 @@ export function AdminQuotesPage(): React.JSX.Element {
           <GlassCard key={quote.id} className="space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-sm font-semibold text-brand-900">Quote {quote.quote_number}</p>
+                <p className="text-sm font-semibold text-brand-900">Quote {formatQuoteNumber(quote.quote_number)}</p>
                 <p className="text-xs text-brand-700">Valid until {formatDate(quote.valid_until)}</p>
                 <p className="text-xs text-brand-700">Total {formatCurrency(quote.total)}</p>
               </div>

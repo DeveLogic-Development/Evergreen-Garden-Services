@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/features/auth/AuthProvider';
 import type { Invoice } from '@/types/db';
 import { getPublicSettings, listMyInvoices, uploadProofOfPayment } from '@/lib/api';
-import { formatCurrency, formatDate, isOverdue } from '@/utils/format';
+import { formatCurrency, formatDate, formatInvoiceNumber, isOverdue } from '@/utils/format';
 import { useToast } from '@/components/Toast';
 
 const toneMap: Record<string, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> = {
@@ -104,7 +104,7 @@ export function InvoicesPage(): React.JSX.Element {
           <GlassCard key={invoice.id} className="space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-sm font-semibold text-brand-900">Invoice {invoice.invoice_number}</p>
+                <p className="text-sm font-semibold text-brand-900">Invoice {formatInvoiceNumber(invoice.invoice_number)}</p>
                 <p className="text-xs text-brand-700">Due {formatDate(invoice.due_date)}</p>
               </div>
               <StatusBadge tone={tone}>{label}</StatusBadge>
@@ -135,7 +135,7 @@ export function InvoicesPage(): React.JSX.Element {
       <BottomSheet
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
-        title={selected ? `Invoice ${selected.invoice_number}` : ''}
+        title={selected ? `Invoice ${formatInvoiceNumber(selected.invoice_number)}` : ''}
       >
         {selected ? (
           <>

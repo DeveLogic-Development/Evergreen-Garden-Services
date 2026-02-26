@@ -6,6 +6,18 @@ type SendInvoicePayload = {
   invoiceId?: string;
 };
 
+function formatInvoiceNumberDisplay(value: string): string {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return String(value ?? '');
+  }
+  const parsed = Number.parseInt(digits, 10);
+  if (Number.isNaN(parsed)) {
+    return String(value ?? '');
+  }
+  return String(parsed).padStart(3, '0');
+}
+
 function json(res: any, status: number, body: Record<string, unknown>) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
@@ -133,16 +145,17 @@ export default async function handler(req: any, res: any) {
     const loginLink = `${appUrl}/login`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
+    const invoiceNumber = formatInvoiceNumberDisplay(invoice.invoice_number);
 
     await transporter.sendMail({
       from: mailHeaders.from,
       to: customerEmail,
       replyTo: mailHeaders.replyTo,
-      subject: `Invoice ${invoice.invoice_number} from Evergreen Garden Services`,
+      subject: `Invoice ${invoiceNumber} from Evergreen Garden Services`,
       text: [
         `Hello ${customerName},`,
         '',
-        `Your invoice ${invoice.invoice_number} is now available.`,
+        `Your invoice ${invoiceNumber} is now available.`,
         `Total: R ${Number(invoice.total).toFixed(2)}`,
         `Due date: ${invoice.due_date}`,
         '',
@@ -157,9 +170,9 @@ export default async function handler(req: any, res: any) {
           eyebrow: 'Evergreen Garden Services',
           subtitle: 'View your invoice and upload proof of payment.',
           greeting: `Hello ${customerName},`,
-          introHtml: `Your invoice <strong>${escapeHtml(invoice.invoice_number)}</strong> is now available.`,
+          introHtml: `Your invoice <strong>${escapeHtml(invoiceNumber)}</strong> is now available.`,
           bodyHtml: renderRows([
-            { label: 'Invoice number', value: invoice.invoice_number },
+            { label: 'Invoice number', value: invoiceNumber },
             { label: 'Total', value: `R ${Number(invoice.total).toFixed(2)}` },
             { label: 'Due date', value: invoice.due_date },
           ]),
@@ -167,7 +180,7 @@ export default async function handler(req: any, res: any) {
           ctaHref: loginLink,
           footerNote: 'Sign in to your client portal to view this invoice and upload proof of payment.',
           logoUrl,
-          preheader: `Invoice ${invoice.invoice_number} is ready`,
+          preheader: `Invoice ${invoiceNumber} is ready`,
         })}
       `,
     });

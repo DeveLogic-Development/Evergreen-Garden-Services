@@ -158,7 +158,7 @@ export function renderEmailShell(input: {
                 <tr>
                   <td style="padding:10px 6px 0 6px;text-align:center;">
                     <p style="margin:0;font-size:11px;line-height:1.5;color:${COLORS.brand600};">
-                      Evergreen Garden Services • Designed for reliable garden care workflows
+                      Evergreen Garden Services • Evergreen Garden Services • Designed &amp; Developed by <a href="https://develogic-digital.com" style="color:${COLORS.brand600};text-decoration:underline;">DeveLogic Digital (PTY) LTD</a>
                     </p>
                   </td>
                 </tr>

@@ -25,6 +25,30 @@ export function formatDateTime(value: string | Date): string {
   return dateTimeFormatter.format(new Date(value));
 }
 
+export function formatQuoteNumber(value: string): string {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return String(value ?? '');
+  }
+  const normalized = String(Number.parseInt(digits, 10));
+  if (normalized === 'NaN') {
+    return String(value ?? '');
+  }
+  return normalized.padStart(3, '0');
+}
+
+export function formatInvoiceNumber(value: string): string {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return String(value ?? '');
+  }
+  const normalized = String(Number.parseInt(digits, 10));
+  if (normalized === 'NaN') {
+    return String(value ?? '');
+  }
+  return normalized.padStart(3, '0');
+}
+
 export function isOverdue(dueDate: string, status: string): boolean {
   if (status !== 'sent') {
     return false;

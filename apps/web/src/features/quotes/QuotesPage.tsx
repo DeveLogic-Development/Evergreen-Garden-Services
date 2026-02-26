@@ -9,7 +9,7 @@ import { BottomSheet } from '@/components/ui/BottomSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { listMyQuotes, setQuoteStatus } from '@/lib/api';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatQuoteNumber } from '@/utils/format';
 import { useToast } from '@/components/Toast';
 
 const toneMap: Record<string, 'neutral' | 'brand' | 'success' | 'warning' | 'danger'> = {
@@ -63,7 +63,7 @@ export function QuotesPage(): React.JSX.Element {
         <GlassCard key={quote.id} className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-brand-900">Quote {quote.quote_number}</p>
+              <p className="text-sm font-semibold text-brand-900">Quote {formatQuoteNumber(quote.quote_number)}</p>
               <p className="text-xs text-brand-700">Valid until {formatDate(quote.valid_until)}</p>
             </div>
             <StatusBadge tone={toneMap[quote.status] ?? 'neutral'}>{quote.status}</StatusBadge>
@@ -84,7 +84,11 @@ export function QuotesPage(): React.JSX.Element {
         <EmptyState title="No quotes yet" description="Once a quote is issued, it will appear here." />
       ) : null}
 
-      <BottomSheet open={Boolean(selected)} onClose={() => setSelected(null)} title={selected ? `Quote ${selected.quote_number}` : ''}>
+      <BottomSheet
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+        title={selected ? `Quote ${formatQuoteNumber(selected.quote_number)}` : ''}
+      >
         {selected ? (
           <>
             <div className="flex items-center justify-between">

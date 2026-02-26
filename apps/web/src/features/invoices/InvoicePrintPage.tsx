@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { getInvoiceById, getPublicSettings } from '@/lib/api';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatInvoiceNumber } from '@/utils/format';
 
 export function InvoicePrintPage(): React.JSX.Element {
   const params = useParams();
@@ -39,7 +39,7 @@ export function InvoicePrintPage(): React.JSX.Element {
     <article className="mx-auto max-w-3xl space-y-4 bg-surface p-4 md:p-8">
       <header className="flex items-start justify-between border-b border-muted pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-brand-900">Invoice {invoice.invoice_number}</h1>
+          <h1 className="text-2xl font-bold text-brand-900">Invoice {formatInvoiceNumber(invoice.invoice_number)}</h1>
           <p className="text-sm text-brand-700">Issue date {formatDate(invoice.issue_date)}</p>
           <p className="text-sm text-brand-700">Due date {formatDate(invoice.due_date)}</p>
         </div>
@@ -82,7 +82,7 @@ export function InvoicePrintPage(): React.JSX.Element {
       </section>
 
       <section className="rounded-xl bg-accent-500 p-3 text-sm text-brand-900">
-        Please use EFT reference: {invoice.invoice_number}
+        Please use EFT reference: {formatInvoiceNumber(invoice.invoice_number)}
       </section>
     </article>
   );

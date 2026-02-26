@@ -18,7 +18,7 @@ import {
   sendInvoiceToCustomer,
 } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import { formatCurrency, formatDate, isOverdue } from '@/utils/format';
+import { formatCurrency, formatDate, formatInvoiceNumber, formatQuoteNumber, isOverdue } from '@/utils/format';
 import type { PaymentMethod } from '@/types/db';
 import { sendWebEmailNotification } from '@/lib/emailNotifications';
 
@@ -218,7 +218,7 @@ export function AdminInvoicesPage(): React.JSX.Element {
               <option value="">None</option>
               {quoteOptions.map((quote) => (
                 <option key={quote.id} value={quote.id}>
-                  {quote.quote_number}
+                  {formatQuoteNumber(quote.quote_number)}
                 </option>
               ))}
             </select>
@@ -317,7 +317,7 @@ export function AdminInvoicesPage(): React.JSX.Element {
               const label = isOverdue(invoice.due_date, invoice.status) ? 'overdue' : invoice.status;
               return (
                 <tr key={invoice.id} className="border-t border-surface/80">
-                  <td className="px-2 py-2">{invoice.invoice_number}</td>
+                  <td className="px-2 py-2">{formatInvoiceNumber(invoice.invoice_number)}</td>
                   <td className="px-2 py-2">{formatDate(invoice.issue_date)}</td>
                   <td className="px-2 py-2">{formatDate(invoice.due_date)}</td>
                   <td className="px-2 py-2">{label}</td>
@@ -336,7 +336,7 @@ export function AdminInvoicesPage(): React.JSX.Element {
             <GlassCard key={invoice.id} className="space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-sm font-semibold text-brand-900">Invoice {invoice.invoice_number}</p>
+                  <p className="text-sm font-semibold text-brand-900">Invoice {formatInvoiceNumber(invoice.invoice_number)}</p>
                   <p className="text-xs text-brand-700">
                     Issue {formatDate(invoice.issue_date)} | Due {formatDate(invoice.due_date)}
                   </p>

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { getPublicSettings, getQuoteById } from '@/lib/api';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatQuoteNumber } from '@/utils/format';
 
 export function QuotePrintPage(): React.JSX.Element {
   const params = useParams();
@@ -35,7 +35,7 @@ export function QuotePrintPage(): React.JSX.Element {
     <article className="mx-auto max-w-3xl space-y-4 bg-surface p-4 md:p-8">
       <header className="flex items-start justify-between border-b border-muted pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-brand-900">Quote {quote.quote_number}</h1>
+          <h1 className="text-2xl font-bold text-brand-900">Quote {formatQuoteNumber(quote.quote_number)}</h1>
           <p className="text-sm text-brand-700">Issued {formatDate(quote.created_at)}</p>
           <p className="text-sm text-brand-700">Valid until {formatDate(quote.valid_until)}</p>
         </div>

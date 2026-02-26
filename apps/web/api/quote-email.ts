@@ -6,6 +6,18 @@ type SendQuotePayload = {
   quoteId?: string;
 };
 
+function formatQuoteNumberDisplay(value: string): string {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return String(value ?? '');
+  }
+  const parsed = Number.parseInt(digits, 10);
+  if (Number.isNaN(parsed)) {
+    return String(value ?? '');
+  }
+  return String(parsed).padStart(3, '0');
+}
+
 function json(res: any, status: number, body: Record<string, unknown>) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
@@ -131,16 +143,17 @@ export default async function handler(req: any, res: any) {
     const loginLink = `${appUrl}/login`;
     const logoUrl = `${appUrl}/images/logoEGS.png`;
     const customerName = customerProfile?.full_name ?? 'Customer';
+    const quoteNumber = formatQuoteNumberDisplay(quote.quote_number);
 
     await transporter.sendMail({
       from: mailHeaders.from,
       to: customerEmail,
       replyTo: mailHeaders.replyTo,
-      subject: `Quote ${quote.quote_number} from Evergreen Garden Services`,
+      subject: `Quote ${quoteNumber} from Evergreen Garden Services`,
       text: [
         `Hello ${customerName},`,
         '',
-        `Your quote ${quote.quote_number} is ready to review.`,
+        `Your quote ${quoteNumber} is ready to review.`,
         `Total: R ${Number(quote.total).toFixed(2)}`,
         `Valid until: ${quote.valid_until}`,
         '',
@@ -155,9 +168,9 @@ export default async function handler(req: any, res: any) {
           eyebrow: 'Evergreen Garden Services',
           subtitle: 'Review and respond in your client portal.',
           greeting: `Hello ${customerName},`,
-          introHtml: `Your quote <strong>${escapeHtml(quote.quote_number)}</strong> is ready to review.`,
+          introHtml: `Your quote <strong>${escapeHtml(quoteNumber)}</strong> is ready to review.`,
           bodyHtml: renderRows([
-            { label: 'Quote number', value: quote.quote_number },
+            { label: 'Quote number', value: quoteNumber },
             { label: 'Total', value: `R ${Number(quote.total).toFixed(2)}` },
             { label: 'Valid until', value: quote.valid_until },
           ]),
@@ -165,7 +178,7 @@ export default async function handler(req: any, res: any) {
           ctaHref: loginLink,
           footerNote: 'Sign in to your client portal to view, accept, or decline this quote.',
           logoUrl,
-          preheader: `Quote ${quote.quote_number} is ready to review`,
+          preheader: `Quote ${quoteNumber} is ready to review`,
         })}
       `,
     });

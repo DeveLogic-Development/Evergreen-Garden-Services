@@ -16,7 +16,7 @@ import {
   setMonthlyPlanStatus,
 } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatQuoteNumber } from '@/utils/format';
 
 type ScheduleRow = {
   service_id: string;
@@ -498,7 +498,7 @@ export function AdminMonthlyPlansPage(): React.JSX.Element {
                 <p className="text-xs text-brand-700">{plan.address}</p>
                 {plan.quotes ? (
                   <p className="text-xs text-brand-700">
-                    Quote {plan.quotes.quote_number} ({formatCurrency(plan.quotes.total)})
+                    Quote {formatQuoteNumber(plan.quotes.quote_number)} ({formatCurrency(plan.quotes.total)})
                   </p>
                 ) : null}
               </div>

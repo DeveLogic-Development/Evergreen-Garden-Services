@@ -1069,7 +1069,7 @@ begin
     raise exception 'Settings row is missing';
   end if;
 
-  return 'Q-' || lpad(current_number::text, 6, '0');
+  return lpad(current_number::text, 3, '0');
 end;
 $$;
 
@@ -1096,7 +1096,7 @@ begin
     raise exception 'Settings row is missing';
   end if;
 
-  return 'INV-' || lpad(current_number::text, 6, '0');
+  return lpad(current_number::text, 3, '0');
 end;
 $$;
 

@@ -124,6 +124,22 @@ function formatDateValue(value: string): string {
 }
 
 function formatDetailValue(key: string, value: string): string {
+  if (key === 'quote_number') {
+    const digits = String(value).replace(/\D/g, '');
+    const parsed = Number.parseInt(digits, 10);
+    if (!Number.isNaN(parsed)) {
+      return String(parsed).padStart(3, '0');
+    }
+    return value;
+  }
+  if (key === 'invoice_number') {
+    const digits = String(value).replace(/\D/g, '');
+    const parsed = Number.parseInt(digits, 10);
+    if (!Number.isNaN(parsed)) {
+      return String(parsed).padStart(3, '0');
+    }
+    return value;
+  }
   if (key === 'vat_rate') {
     const asNumber = Number(value);
     if (!Number.isNaN(asNumber)) {
