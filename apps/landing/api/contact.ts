@@ -3,6 +3,8 @@ import { escapeHtml, renderEmailShell, renderPanel } from './_lib/emailTheme.js'
 
 type ContactPayload = {
   name?: string;
+  phone?: string;
+  email?: string;
   area?: string;
   service?: string;
   message?: string;
@@ -36,6 +38,18 @@ function requireString(value: unknown, field: string, min = 1): string {
   return normalized;
 }
 
+function optionalEmail(value: unknown): string {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  if (!normalized) {
+    return '';
+  }
+  // Keep validation lightweight to avoid rejecting legitimate addresses.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+    throw new Error('Invalid email');
+  }
+  return normalized;
+}
+
 function getTransporter() {
   const user = process.env.SMTP_USER || 'jsuperman55@gmail.com';
   const pass = process.env.SMTP_PASS;
@@ -61,13 +75,15 @@ function resolveMailHeaders(smtpUser: string, configuredReplyTo?: string) {
   };
 }
 
-function buildTextEmail(name: string, area: string, service: string, message: string): string {
+function buildTextEmail(name: string, phone: string, email: string, area: string, service: string, message: string): string {
   return [
     'Evergreen landing notification',
     '',
     'New contact request received',
     '',
     `Name: ${name}`,
+    `Phone: ${phone}`,
+    `Email: ${email || 'Not provided'}`,
     `Area: ${area}`,
     `Service requested: ${service}`,
     '',
@@ -78,7 +94,7 @@ function buildTextEmail(name: string, area: string, service: string, message: st
   ].join('\n');
 }
 
-function buildHtmlEmail(name: string, area: string, service: string, message: string) {
+function buildHtmlEmail(name: string, phone: string, email: string, area: string, service: string, message: string) {
   return renderPanel(
     'Lead summary',
     `
@@ -86,6 +102,8 @@ function buildHtmlEmail(name: string, area: string, service: string, message: st
         New Website Lead
       </div>
       <div style="margin-top:10px;"><strong>Name:</strong> ${escapeHtml(name)}</div>
+      <div style="margin-top:6px;"><strong>Phone:</strong> ${escapeHtml(phone)}</div>
+      <div style="margin-top:6px;"><strong>Email:</strong> ${escapeHtml(email || 'Not provided')}</div>
       <div style="margin-top:6px;"><strong>Area:</strong> ${escapeHtml(area)}</div>
       <div style="margin-top:6px;"><strong>Service requested:</strong> ${escapeHtml(service)}</div>
     `,
@@ -106,6 +124,8 @@ export default async function handler(req: any, res: any) {
   try {
     const payload = parseBody(req);
     const name = requireString(payload.name, 'name', 2);
+    const phone = requireString(payload.phone, 'phone', 7);
+    const email = optionalEmail(payload.email);
     const area = requireString(payload.area, 'area', 2);
     const service = requireString(payload.service, 'service', 2);
     const message = requireString(payload.message, 'message', 5);
@@ -121,14 +141,14 @@ export default async function handler(req: any, res: any) {
       to,
       replyTo: mailHeaders.replyTo,
       subject: `Evergreen landing contact request: ${service}`,
-      text: buildTextEmail(name, area, service, message),
+      text: buildTextEmail(name, phone, email, area, service, message),
       html: `
         ${renderEmailShell({
           eyebrow: 'Landing Website',
           title: 'New Contact Request',
           subtitle: 'Lead enquiry submitted from the Evergreen landing page.',
           introHtml: 'A visitor submitted the contact form on the landing website.',
-          bodyHtml: buildHtmlEmail(name, area, service, message),
+          bodyHtml: buildHtmlEmail(name, phone, email, area, service, message),
           footerNote: 'Follow up with this client from your preferred business email or CRM workflow.',
           logoUrl,
           preheader: `New contact request for ${service}`,

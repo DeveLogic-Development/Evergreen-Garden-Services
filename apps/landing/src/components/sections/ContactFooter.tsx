@@ -4,7 +4,7 @@ import { Container } from '@/components/ui/Container';
 import { navItems } from '@/data/content';
 
 export function ContactFooter(): React.JSX.Element {
-  const [form, setForm] = useState({ name: '', area: '', service: '', message: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', area: '', service: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitState, setSubmitState] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -24,7 +24,7 @@ export function ContactFooter(): React.JSX.Element {
         throw new Error(payload?.error ?? 'Could not send your request. Please try again.');
       }
 
-      setForm({ name: '', area: '', service: '', message: '' });
+      setForm({ name: '', phone: '', email: '', area: '', service: '', message: '' });
       setSubmitState({ type: 'success', message: 'Request sent. We will follow up soon.' });
     } catch (error) {
       setSubmitState({
@@ -55,6 +55,27 @@ export function ContactFooter(): React.JSX.Element {
                   onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                   className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                   required
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
+                Phone number
+                <input
+                  type="tel"
+                  placeholder="Your phone number"
+                  value={form.phone}
+                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
+                  required
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
+                Email (optional)
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                  className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                 />
               </label>
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
