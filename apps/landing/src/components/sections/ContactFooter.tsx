@@ -3,6 +3,10 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { Container } from '@/components/ui/Container';
 import { navItems } from '@/data/content';
 
+function sanitizePhone(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 10);
+}
+
 export function ContactFooter(): React.JSX.Element {
   const currentYear = new Date().getFullYear();
   const [form, setForm] = useState({ name: '', phone: '', email: '', area: '', service: '', message: '' });
@@ -62,9 +66,14 @@ export function ContactFooter(): React.JSX.Element {
                 Phone number
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   placeholder="Your phone number"
                   value={form.phone}
-                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, phone: sanitizePhone(event.target.value) }))
+                  }
                   className="tap-target min-h-11 rounded-xl border border-surface/75 bg-surface px-3 text-base text-brand-900 outline-none transition focus:border-brand-500 sm:text-sm"
                   required
                 />

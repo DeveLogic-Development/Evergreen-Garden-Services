@@ -11,9 +11,13 @@ import { getPublicSettings, upsertProfile } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import { composeServiceAddress, parseServiceAddress, resolveServiceAreas } from '@/lib/serviceAreas';
 
+function sanitizePhone(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 10);
+}
+
 const schema = z.object({
   full_name: z.string().min(2, 'Enter your full name'),
-  phone: z.string().min(7, 'Enter a valid phone number'),
+  phone: z.string().regex(/^\d{10}$/, 'Enter a valid 10-digit phone number'),
   street_address: z.string().min(4, 'Enter street name and number'),
   area: z.string().min(1, 'Select an area'),
 });
@@ -116,9 +120,17 @@ export function ProfilePage(): React.JSX.Element {
             />
             <FormInput
               label="Phone"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              pattern="[0-9]{10}"
+              placeholder="0123456789"
               value={form.phone}
-              onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, phone: sanitizePhone(event.target.value) }))
+              }
               error={errors.phone}
+              hint="Enter 10 digits"
               required
             />
           </div>

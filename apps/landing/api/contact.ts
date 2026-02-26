@@ -38,6 +38,14 @@ function requireString(value: unknown, field: string, min = 1): string {
   return normalized;
 }
 
+function requirePhone10(value: unknown): string {
+  const digits = typeof value === 'string' ? value.replace(/\D/g, '') : '';
+  if (digits.length !== 10) {
+    throw new Error('Invalid phone number (must be 10 digits)');
+  }
+  return digits;
+}
+
 function optionalEmail(value: unknown): string {
   const normalized = typeof value === 'string' ? value.trim() : '';
   if (!normalized) {
@@ -124,7 +132,7 @@ export default async function handler(req: any, res: any) {
   try {
     const payload = parseBody(req);
     const name = requireString(payload.name, 'name', 2);
-    const phone = requireString(payload.phone, 'phone', 7);
+    const phone = requirePhone10(payload.phone);
     const email = optionalEmail(payload.email);
     const area = requireString(payload.area, 'area', 2);
     const service = requireString(payload.service, 'service', 2);
