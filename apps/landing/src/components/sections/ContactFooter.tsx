@@ -156,14 +156,15 @@ export function ContactFooter(): React.JSX.Element {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">Social Platform</p>
                 <div className="mt-2 flex items-center gap-2">
-                  {['FB'].map((item) => (
-                    <span
-                      key={item}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-surface/75 bg-surface text-xs font-semibold text-brand-700"
-                    >
-                      {item}
-                    </span>
-                  ))}
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61587175082102"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-surface/75 bg-surface text-xs font-semibold text-brand-700 transition hover:text-brand-600"
+                  >
+                    FB
+                  </a>
                 </div>
               </div>
             </div>
