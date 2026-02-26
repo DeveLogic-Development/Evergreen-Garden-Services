@@ -77,16 +77,15 @@ export function AdminInvoicesPage(): React.JSX.Element {
 
       const emailResult = await sendInvoiceToCustomer(invoiceId);
       const customerName = (profilesQuery.data ?? []).find((profile) => profile.id === customerId)?.full_name ?? 'Customer';
+      const bookingName = (bookingsQuery.data ?? []).find((booking) => booking.id === bookingId)?.services?.name ?? '';
       void sendWebEmailNotification({
         type: 'invoice_created',
         title: 'Invoice created',
-        summary: `${customerName} invoice ${invoiceId.slice(0, 8)}`,
+        summary: bookingName ? `${customerName} (${bookingName})` : `${customerName} invoice`,
         details: {
           customer_name: customerName,
-          customer_id: customerId,
-          invoice_id: invoiceId,
-          booking_id: bookingId || '',
-          quote_id: quoteId || '',
+          service: bookingName,
+          created_from: quoteId ? 'quote' : bookingId ? 'booking' : 'manual',
           issue_date: issueDate,
           due_date: dueDate,
           vat_rate: vatRate,

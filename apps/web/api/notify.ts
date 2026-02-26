@@ -17,19 +17,29 @@ const TYPE_LABELS: Record<NotificationType, string> = {
 };
 
 const DETAIL_LABELS: Record<string, string> = {
-  quote_id: 'Quote ID',
-  invoice_id: 'Invoice ID',
-  booking_id: 'Booking ID',
-  customer_id: 'Customer ID',
   customer_name: 'Customer name',
+  customer_phone: 'Phone',
   service: 'Service',
+  address: 'Address',
+  requested_datetime: 'Requested date & time',
+  confirmed_datetime: 'Confirmed date & time',
   valid_until: 'Valid until',
   issue_date: 'Issue date',
   due_date: 'Due date',
   vat_rate: 'VAT rate',
   item_count: 'Line items',
-  source: 'Source',
+  quote_number: 'Quote number',
+  invoice_number: 'Invoice number',
+  created_from: 'Created from',
 };
+
+const HIDDEN_DETAIL_KEYS = new Set([
+  'source',
+  'quote_id',
+  'invoice_id',
+  'booking_id',
+  'customer_id',
+]);
 
 function json(res: any, status: number, body: Record<string, unknown>) {
   res.statusCode = status;
@@ -101,6 +111,18 @@ function isIdentifierKey(key: string): boolean {
   return key.endsWith('_id');
 }
 
+function formatDateValue(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const hasTime = value.includes('T') || /\d{2}:\d{2}/.test(value);
+  return new Intl.DateTimeFormat('en-ZA', hasTime
+    ? { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    : { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+}
+
 function formatDetailValue(key: string, value: string): string {
   if (key === 'vat_rate') {
     const asNumber = Number(value);
@@ -108,12 +130,20 @@ function formatDetailValue(key: string, value: string): string {
       return `${(asNumber * 100).toFixed(asNumber * 100 % 1 === 0 ? 0 : 2)}%`;
     }
   }
+  if (['requested_datetime', 'confirmed_datetime', 'valid_until', 'issue_date', 'due_date'].includes(key)) {
+    return formatDateValue(value);
+  }
+  if (key === 'created_from') {
+    if (value === 'quote') return 'Quote';
+    if (value === 'booking') return 'Booking';
+    return value.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  }
   return value;
 }
 
 function buildDetailSections(details?: Record<string, unknown>) {
   const entries = Object.entries(details ?? {})
-    .filter(([, value]) => value !== undefined && value !== null && `${value}` !== '')
+    .filter(([key, value]) => !HIDDEN_DETAIL_KEYS.has(key) && value !== undefined && value !== null && `${value}` !== '')
     .map(([key, rawValue]) => {
       const normalized = normalize(rawValue);
       return {
@@ -124,7 +154,7 @@ function buildDetailSections(details?: Record<string, unknown>) {
     });
 
   const primary = entries.filter((entry) => !isIdentifierKey(entry.key));
-  const references = entries.filter((entry) => isIdentifierKey(entry.key));
+  const references: typeof entries = [];
 
   const lines = entries.map((entry) => `${entry.label}: ${entry.value}`);
 
@@ -155,12 +185,7 @@ function buildDetailSections(details?: Record<string, unknown>) {
       )
     : '';
 
-  const referenceHtml = references.length
-    ? renderPanel(
-        'Reference IDs',
-        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${makeTable(references)}</table>`,
-      )
-    : '';
+  const referenceHtml = '';
 
   return { lines, primaryHtml, referenceHtml };
 }
@@ -200,6 +225,15 @@ function buildTextSummary(payload: NotificationPayload, title: string, summary: 
 }
 
 function buildIntro(payloadType: NotificationType): string {
+  if (payloadType === 'booking_created') {
+    return 'A new <strong>booking request</strong> was submitted in the Evergreen web app.';
+  }
+  if (payloadType === 'quote_created') {
+    return 'A new <strong>quote</strong> was created in the Evergreen web app.';
+  }
+  if (payloadType === 'invoice_created') {
+    return 'A new <strong>invoice</strong> was created in the Evergreen web app.';
+  }
   const label = prettifyType(payloadType);
   return `A new <strong>${escapeHtml(label)}</strong> event was recorded in the Evergreen web app.`;
 }

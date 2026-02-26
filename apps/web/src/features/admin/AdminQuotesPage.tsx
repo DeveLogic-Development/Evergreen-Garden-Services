@@ -126,14 +126,23 @@ export function AdminQuotesPage(): React.JSX.Element {
     mutationFn: async (quoteId: string) => {
       const invoiceId = await createInvoiceFromQuote(quoteId);
       const emailResult = await sendInvoiceToCustomer(invoiceId);
+      const quote = (quotesQuery.data ?? []).find((row) => row.id === quoteId);
+      const quoteAny = quote as (typeof quote & { profiles?: { full_name?: string | null } | null }) | undefined;
+      const booking = quote?.booking_id
+        ? (bookingsQuery.data ?? []).find((row) => row.id === quote.booking_id)
+        : undefined;
+      const customerName = quoteAny?.profiles?.full_name ?? booking?.profiles?.full_name ?? 'Customer';
+      const serviceName = booking?.services?.name ?? 'Service';
       void sendWebEmailNotification({
         type: 'invoice_created',
         title: 'Invoice created from quote',
-        summary: `Quote ID ${quoteId}`,
+        summary: `${customerName} (${serviceName})`,
         details: {
-          quote_id: quoteId,
-          invoice_id: invoiceId,
-          source: 'create_invoice_from_quote',
+          customer_name: customerName,
+          service: serviceName,
+          quote_number: quote?.quote_number ?? '',
+          valid_until: quote?.valid_until ?? '',
+          created_from: 'quote',
         },
       });
       return emailResult;
