@@ -23,7 +23,7 @@ export function DashboardPage(): React.JSX.Element {
       </header>
 
       {query.isLoading ? (
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
           <Skeleton className="h-24" />
@@ -32,14 +32,16 @@ export function DashboardPage(): React.JSX.Element {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap justify-center gap-3">
-        {cards.map((card) => (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {cards.map((card, index) => (
           <GlassCard
             key={card.label}
             className={
               card.alert && card.value > 0
-                ? 'w-full space-y-1 border border-accent-600 bg-accent-500/80 sm:w-[calc(50%-0.375rem)]'
-                : 'w-full space-y-1 sm:w-[calc(50%-0.375rem)]'
+                ? `h-full space-y-1 border border-accent-600 bg-accent-500/80 ${
+                    index === cards.length - 1 ? 'sm:col-span-2 lg:col-span-1' : ''
+                  }`
+                : `h-full space-y-1 ${index === cards.length - 1 ? 'sm:col-span-2 lg:col-span-1' : ''}`
             }
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{card.label}</p>
